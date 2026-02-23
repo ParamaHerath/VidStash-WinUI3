@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VidStash (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "VidStash (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
