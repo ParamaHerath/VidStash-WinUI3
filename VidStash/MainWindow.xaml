@@ -14,6 +14,36 @@
     </Window.SystemBackdrop>
 
     <Grid>
+        <NavigationView
+            x:Name="NavView"
+            IsBackButtonVisible="Auto"
+            PaneDisplayMode="Left"
+            OpenPaneLength="220"
+            BackRequested="NavView_BackRequested"
+            SelectionChanged="NavView_SelectionChanged"
+            IsSettingsVisible="True">
 
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="All Movies" Tag="Movies" Icon="Video" />
+                <NavigationViewItem Content="TV Series" Tag="Series" Icon="SlideShow" />
+                <NavigationViewItem Content="Unwatched" Tag="Unwatched">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7B3;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItemSeparator />
+                <NavigationViewItemHeader Content="Folders" />
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Content="Add Folder" Tag="AddFolder">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE710;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
     </Grid>
 </Window>
