@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media.Imaging;
 using VidStash.Services;
 
 namespace VidStash.Helpers;
@@ -9,9 +10,10 @@ public class PosterUrlConverter : IValueConverter
     {
         if (value is string path && !string.IsNullOrEmpty(path))
         {
-            return TmdbService.GetPosterUrl(path, parameter as string ?? "w342");
+            var url = TmdbService.GetPosterUrl(path, parameter as string ?? "w342");
+            return new BitmapImage(new Uri(url));
         }
-        return "ms-appx:///Assets/placeholder-poster.png";
+        return new BitmapImage(new Uri("ms-appx:///Assets/placeholder-poster.png"));
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -24,7 +26,8 @@ public class BackdropUrlConverter : IValueConverter
     {
         if (value is string path && !string.IsNullOrEmpty(path))
         {
-            return TmdbService.GetBackdropUrl(path);
+            var url = TmdbService.GetBackdropUrl(path);
+            return new BitmapImage(new Uri(url));
         }
         return null;
     }

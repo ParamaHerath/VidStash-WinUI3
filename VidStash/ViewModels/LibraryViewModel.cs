@@ -56,6 +56,7 @@ public partial class LibraryViewModel : ObservableObject
     private List<Movie> _allMovies = [];
     private List<TvSeries> _allSeries = [];
     private CancellationTokenSource? _scanCts;
+    private bool _initialized;
 
     public LibraryViewModel(DatabaseService db, ScannerService scanner, TmdbService tmdb)
     {
@@ -66,12 +67,53 @@ public partial class LibraryViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
+        if (_initialized || IsLoading) return;
+        _initialized = true;
         IsLoading = true;
         try
         {
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] InitializeAsync starting...");
+
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] Getting API key...");
             var apiKey = await _db.GetSettingAsync("tmdb_api_key");
             HasNoApiKey = string.IsNullOrEmpty(apiKey);
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] API key: {(string.IsNullOrEmpty(apiKey) ? "missing" : "present")}");
 
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] Loading folders...");
+            await LoadFoldersAsync();
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] Loaded {Folders.Count} folders");
+
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] Loading movies...");
+            await LoadMoviesAsync();
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] Loaded {Movies.Count} movies");
+
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] Loading series...");
+            await LoadSeriesAsync();
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] Loaded {Series.Count} series");
+
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] Extracting genres...");
+            ExtractGenres();
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] Extracted {AvailableGenres.Count} genres");
+
+            System.Diagnostics.Debug.WriteLine("[LibraryViewModel] InitializeAsync complete");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] InitializeAsync FAILED: {ex.GetType().Name}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[LibraryViewModel] Stack: {ex.StackTrace}");
+            throw;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public async Task RefreshLibraryAsync()
+    {
+        IsLoading = true;
+        try
+        {
             await LoadFoldersAsync();
             await LoadMoviesAsync();
             await LoadSeriesAsync();
@@ -86,7 +128,11 @@ public partial class LibraryViewModel : ObservableObject
     private async Task LoadFoldersAsync()
     {
         var folders = await _db.GetFoldersAsync();
-        Folders = new ObservableCollection<Folder>(folders);
+        Folders.Clear();
+        foreach (var folder in folders)
+        {
+            Folders.Add(folder);
+        }
         HasNoFolders = Folders.Count == 0;
     }
 
@@ -131,7 +177,11 @@ public partial class LibraryViewModel : ObservableObject
                 catch { }
             }
         }
-        AvailableGenres = new ObservableCollection<string>(genres.OrderBy(g => g));
+        AvailableGenres.Clear();
+        foreach (var genre in genres.OrderBy(g => g))
+        {
+            AvailableGenres.Add(genre);
+        }
     }
 
     public void ApplyFilters()
@@ -167,7 +217,13 @@ public partial class LibraryViewModel : ObservableObject
             _ => filtered.OrderBy(m => m.Title)
         };
 
-        Movies = new ObservableCollection<Movie>(filtered);
+        // Update collection in-place to avoid breaking x:Bind
+        var newItems = filtered.ToList();
+        Movies.Clear();
+        foreach (var movie in newItems)
+        {
+            Movies.Add(movie);
+        }
     }
 
     public void ApplySeriesFilters()
@@ -201,7 +257,13 @@ public partial class LibraryViewModel : ObservableObject
             _ => filtered.OrderBy(s => s.Title)
         };
 
-        Series = new ObservableCollection<TvSeries>(filtered);
+        // Update collection in-place to avoid breaking x:Bind
+        var newItems = filtered.ToList();
+        Series.Clear();
+        foreach (var series in newItems)
+        {
+            Series.Add(series);
+        }
     }
 
     partial void OnSearchQueryChanged(string value)
@@ -257,6 +319,7 @@ public partial class LibraryViewModel : ObservableObject
 
         IsScanning = true;
         _scanCts = new CancellationTokenSource();
+        var cts = _scanCts;
 
         var progress = new Progress<ScannerService.ScanProgress>(p =>
         {
@@ -265,16 +328,19 @@ public partial class LibraryViewModel : ObservableObject
 
         try
         {
-            await _scanner.ScanFolderAsync(folderPath, progress, _scanCts.Token);
+            // Run on background thread to keep the UI responsive
+            await Task.Run(() => _scanner.ScanFolderAsync(folderPath, progress, cts.Token), cts.Token);
             await LoadMoviesAsync();
             await LoadSeriesAsync();
             ExtractGenres();
         }
+        catch (OperationCanceledException) { }
         finally
         {
             IsScanning = false;
             ScanProgressText = string.Empty;
-            _scanCts = null;
+            cts.Dispose();
+            if (_scanCts == cts) _scanCts = null;
         }
     }
 

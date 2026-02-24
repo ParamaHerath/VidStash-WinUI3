@@ -23,8 +23,15 @@ public sealed partial class SeriesDetailPage : Page
         base.OnNavigatedTo(e);
         if (e.Parameter is TvSeries series)
         {
-            await ViewModel.LoadAsync(series);
-            UpdateUI();
+            try
+            {
+                await ViewModel.LoadAsync(series);
+                UpdateUI();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SeriesDetailPage] load failed: {ex}");
+            }
         }
     }
 

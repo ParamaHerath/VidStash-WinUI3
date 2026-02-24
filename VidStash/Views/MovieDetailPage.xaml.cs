@@ -23,8 +23,15 @@ public sealed partial class MovieDetailPage : Page
         base.OnNavigatedTo(e);
         if (e.Parameter is Movie movie)
         {
-            await ViewModel.LoadAsync(movie);
-            UpdateUI();
+            try
+            {
+                await ViewModel.LoadAsync(movie);
+                UpdateUI();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MovieDetailPage] load failed: {ex}");
+            }
         }
     }
 

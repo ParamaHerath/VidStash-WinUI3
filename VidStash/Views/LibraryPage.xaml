@@ -152,11 +152,11 @@
 
                             <!-- Poster -->
                             <Grid Grid.Row="0" CornerRadius="8,8,0,0">
-                                <Image Source="{x:Bind Poster, Converter={StaticResource PosterUrlConverter}}"
+                                <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                        Stretch="UniformToFill" />
 
                                 <!-- Watched badge -->
-                                <Border Visibility="{x:Bind Watched, Converter={StaticResource BoolToVisibilityConverter}}"
+                                <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                         Background="{ThemeResource SystemAccentColor}"
                                         CornerRadius="12"
                                         Width="24" Height="24"
@@ -170,7 +170,7 @@
                                 <Grid x:Name="HoverOverlay" Opacity="0"
                                       Background="#80000000" CornerRadius="8,8,0,0">
                                     <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
-                                        <TextBlock Text="{x:Bind Rating, Converter={StaticResource RatingToStarsConverter}}"
+                                        <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
                                                    Foreground="White" FontSize="12" />
                                     </StackPanel>
                                 </Grid>
@@ -178,10 +178,10 @@
 
                             <!-- Info -->
                             <StackPanel Grid.Row="1" Padding="8,6" Spacing="2">
-                                <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold"
+                                <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" MaxLines="2"
                                            FontSize="13" />
-                                <TextBlock Text="{x:Bind Year}" Opacity="0.6" FontSize="12" />
+                                <TextBlock Text="{x:Bind Year, Mode=OneWay}" Opacity="0.6" FontSize="12" />
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
@@ -231,10 +231,10 @@
                             </Grid.ContextFlyout>
 
                             <Grid Grid.Row="0" CornerRadius="8,8,0,0">
-                                <Image Source="{x:Bind Poster, Converter={StaticResource PosterUrlConverter}}"
+                                <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                        Stretch="UniformToFill" />
 
-                                <Border Visibility="{x:Bind Watched, Converter={StaticResource BoolToVisibilityConverter}}"
+                                <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                         Background="{ThemeResource SystemAccentColor}"
                                         CornerRadius="12"
                                         Width="24" Height="24"
@@ -247,17 +247,17 @@
                                 <Grid x:Name="HoverOverlay" Opacity="0"
                                       Background="#80000000" CornerRadius="8,8,0,0">
                                     <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
-                                        <TextBlock Text="{x:Bind Rating, Converter={StaticResource RatingToStarsConverter}}"
+                                        <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
                                                    Foreground="White" FontSize="12" />
                                     </StackPanel>
                                 </Grid>
                             </Grid>
 
                             <StackPanel Grid.Row="1" Padding="8,6" Spacing="2">
-                                <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold"
+                                <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" MaxLines="2"
                                            FontSize="13" />
-                                <TextBlock Text="{x:Bind Year}" Opacity="0.6" FontSize="12" />
+                                <TextBlock Text="{x:Bind Year, Mode=OneWay}" Opacity="0.6" FontSize="12" />
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

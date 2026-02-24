@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
 using VidStash.Models;
 using VidStash.ViewModels;
 
@@ -17,13 +18,29 @@ public sealed partial class LibraryPage : Page
     {
         ViewModel = App.GetService<LibraryViewModel>();
         InitializeComponent();
-        Loaded += LibraryPage_Loaded;
     }
 
-    private async void LibraryPage_Loaded(object sender, RoutedEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        await ViewModel.InitializeAsync();
-        UpdateGenreCombo();
+        base.OnNavigatedTo(e);
+        System.Diagnostics.Debug.WriteLine("[LibraryPage] OnNavigatedTo starting...");
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[LibraryPage] Calling ViewModel.InitializeAsync...");
+            await ViewModel.InitializeAsync();
+            System.Diagnostics.Debug.WriteLine("[LibraryPage] UpdateGenreCombo...");
+            UpdateGenreCombo();
+            System.Diagnostics.Debug.WriteLine("[LibraryPage] OnNavigatedTo complete");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[LibraryPage] OnNavigatedTo FAILED: {ex.GetType().Name}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[LibraryPage] Stack: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LibraryPage] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+            }
+        }
     }
 
     private void UpdateGenreCombo()

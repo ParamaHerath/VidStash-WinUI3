@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using VidStash.Models;
 using VidStash.ViewModels;
 
@@ -14,33 +15,35 @@ public sealed partial class SettingsPage : Page
     {
         ViewModel = App.GetService<SettingsViewModel>();
         InitializeComponent();
-        Loaded += SettingsPage_Loaded;
     }
 
-    private async void SettingsPage_Loaded(object sender, RoutedEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        await ViewModel.InitializeAsync();
-        _libraryVm = App.GetService<LibraryViewModel>();
-
-        ApiKeyBox.Password = ViewModel.ApiKey;
-        ApiKeyStatusText.Text = ViewModel.ApiKeyStatus;
-        CacheSizeText.Text = $"Cache size: {ViewModel.CacheSize}";
-
-        // Set theme radio
-        foreach (var item in ThemeRadio.Items)
+        base.OnNavigatedTo(e);
+        try
         {
-            if (item is RadioButton rb && rb.Tag?.ToString() == ViewModel.SelectedTheme)
+            await ViewModel.InitializeAsync();
+            _libraryVm = App.GetService<LibraryViewModel>();
+
+            ApiKeyBox.Password = ViewModel.ApiKey;
+            ApiKeyStatusText.Text = ViewModel.ApiKeyStatus;
+            CacheSizeText.Text = $"Cache size: {ViewModel.CacheSize}";
+
+            foreach (var item in ThemeRadio.Items)
             {
-                rb.IsChecked = true;
-                break;
+                if (item is RadioButton rb && rb.Tag?.ToString() == ViewModel.SelectedTheme)
+                {
+                    rb.IsChecked = true;
+                    break;
+                }
             }
-        }
 
-        // Load folders
-        if (_libraryVm != null)
-        {
-            await _libraryVm.InitializeAsync();
+            // Bind folder list from the already-initialized library VM (no re-init)
             FoldersList.ItemsSource = _libraryVm.Folders;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsPage] load failed: {ex}");
         }
     }
 
