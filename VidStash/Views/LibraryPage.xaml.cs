@@ -56,11 +56,20 @@ public sealed partial class LibraryPage : Page
     public void SetView(string view)
     {
         ViewModel.SelectedView = view;
+        ViewModel.SelectedFolderPath = null; // Clear folder filter
 
         if (view == "Series")
         {
             MoviesGrid.Visibility = Visibility.Collapsed;
             SeriesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
+            ViewModel.ApplySeriesFilters();
+        }
+        else if (view == "Unwatched")
+        {
+            // Show both Movies and Series for Unwatched
+            MoviesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
+            SeriesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
+            ViewModel.ApplyFilters();
             ViewModel.ApplySeriesFilters();
         }
         else
@@ -73,9 +82,15 @@ public sealed partial class LibraryPage : Page
 
     public void SetFolderView(string folderPath)
     {
-        // Filter movies by folder - simplified for now
-        ViewModel.SelectedView = "Movies";
+        ViewModel.SelectedView = "Folder";
+        ViewModel.SelectedFolderPath = folderPath;
+
+        // Show both Movies and Series for folder view
+        MoviesGrid.Visibility = Visibility.Visible;
+        SeriesGrid.Visibility = Visibility.Visible;
+
         ViewModel.ApplyFilters();
+        ViewModel.ApplySeriesFilters();
     }
 
     private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)

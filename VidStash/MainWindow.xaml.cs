@@ -16,6 +16,7 @@ namespace VidStash
             {
                 InitializeComponent();
                 ExtendsContentIntoTitleBar = true;
+                SetTitleBar(AppTitleBar);
 
                 // Navigate first, then allow SelectionChanged to fire
                 ContentFrame.Navigate(typeof(LibraryPage));
@@ -26,12 +27,57 @@ namespace VidStash
                 {
                     NavView.SelectedItem = NavView.MenuItems[0];
                     _navReady = true;
+                    LoadFolders();
                 };
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[MainWindow] Constructor failed: {ex}");
                 throw;
+            }
+        }
+
+        private async void LoadFolders()
+        {
+            try
+            {
+                var libraryVm = App.GetService<LibraryViewModel>();
+
+                // Clear existing folder items (everything after the separator)
+                var separatorIndex = -1;
+                for (int i = 0; i < NavView.MenuItems.Count; i++)
+                {
+                    if (NavView.MenuItems[i] is NavigationViewItemSeparator)
+                    {
+                        separatorIndex = i;
+                        break;
+                    }
+                }
+
+                if (separatorIndex >= 0)
+                {
+                    // Remove items after header
+                    for (int i = NavView.MenuItems.Count - 1; i > separatorIndex + 1; i--)
+                    {
+                        NavView.MenuItems.RemoveAt(i);
+                    }
+                }
+
+                // Add folder items
+                foreach (var folder in libraryVm.Folders)
+                {
+                    var folderItem = new NavigationViewItem
+                    {
+                        Content = folder.Name,
+                        Tag = $"Folder:{folder.Path}",
+                        Icon = new FontIcon { Glyph = "\uE8B7" }
+                    };
+                    NavView.MenuItems.Add(folderItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainWindow] LoadFolders failed: {ex}");
             }
         }
 
@@ -73,7 +119,7 @@ namespace VidStash
                         break;
 
                     case "AddFolder":
-                        _ = App.GetService<LibraryViewModel>().AddFolderCommand.ExecuteAsync(null);
+                        _ = AddFolderAsync();
                         break;
 
                     default:
@@ -94,6 +140,20 @@ namespace VidStash
             }
         }
 
+        private async Task AddFolderAsync()
+        {
+            try
+            {
+                var libraryVm = App.GetService<LibraryViewModel>();
+                await libraryVm.AddFolderCommand.ExecuteAsync(null);
+                LoadFolders(); // Refresh folder list
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainWindow] AddFolderAsync failed: {ex}");
+            }
+        }
+
         private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             if (ContentFrame.CanGoBack)
@@ -101,5 +161,7 @@ namespace VidStash
         }
 
         public NavigationView GetNavigationView() => NavView;
+
+        public void RefreshFolders() => LoadFolders();
     }
 }

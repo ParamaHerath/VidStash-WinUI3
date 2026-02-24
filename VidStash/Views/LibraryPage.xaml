@@ -81,41 +81,49 @@
         </InfoBar>
 
         <!-- Content -->
-        <Grid Grid.Row="2">
-            <!-- Empty state: No folders -->
-            <StackPanel
-                Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Spacing="16">
-                <FontIcon Glyph="&#xE8B7;" FontSize="48" HorizontalAlignment="Center" Opacity="0.5" />
-                <TextBlock Text="No folders added yet" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" />
-                <TextBlock Text="Add a video folder to get started" Opacity="0.7" HorizontalAlignment="Center" />
-                <Button Content="Add Folder" Style="{StaticResource AccentButtonStyle}"
-                        HorizontalAlignment="Center"
-                        Command="{x:Bind ViewModel.AddFolderCommand}" />
-            </StackPanel>
+        <ScrollViewer Grid.Row="2">
+            <StackPanel Spacing="16">
+                <!-- Empty state: No folders -->
+                <StackPanel
+                    Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="16"
+                    Margin="0,100,0,0">
+                    <FontIcon Glyph="&#xE8B7;" FontSize="48" HorizontalAlignment="Center" Opacity="0.5" />
+                    <TextBlock Text="No folders added yet" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Add a video folder to get started" Opacity="0.7" HorizontalAlignment="Center" />
+                    <Button Content="Add Folder" Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Center"
+                            Command="{x:Bind ViewModel.AddFolderCommand}" />
+                </StackPanel>
 
-            <!-- Empty state: No API key -->
-            <InfoBar
-                Visibility="{x:Bind ViewModel.HasNoApiKey, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                Title="TMDB API Key Required"
-                Message="Configure your TMDB API key in Settings to fetch movie metadata."
-                Severity="Warning"
-                IsOpen="True"
-                IsClosable="False"
-                Margin="24,8"
-                VerticalAlignment="Top" />
+                <!-- Empty state: No API key -->
+                <InfoBar
+                    Visibility="{x:Bind ViewModel.HasNoApiKey, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Title="TMDB API Key Required"
+                    Message="Configure your TMDB API key in Settings to fetch movie metadata."
+                    Severity="Warning"
+                    IsOpen="True"
+                    IsClosable="False"
+                    Margin="24,8" />
 
-            <!-- Movies Grid -->
-            <GridView
-                x:Name="MoviesGrid"
-                Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                ItemsSource="{x:Bind ViewModel.Movies, Mode=OneWay}"
-                Padding="24,8"
-                IsItemClickEnabled="True"
-                ItemClick="MoviesGrid_ItemClick"
-                SelectionMode="None">
+                <!-- Movies Section -->
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <TextBlock x:Name="MoviesSectionHeader"
+                               Text="Movies"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               Margin="24,0"
+                               Visibility="Collapsed" />
+
+                    <!-- Movies Grid -->
+                    <GridView
+                        x:Name="MoviesGrid"
+                        ItemsSource="{x:Bind ViewModel.Movies, Mode=OneWay}"
+                        Padding="24,0"
+                        IsItemClickEnabled="True"
+                        ItemClick="MoviesGrid_ItemClick"
+                        SelectionMode="None">
 
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -187,13 +195,22 @@
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>
+        </StackPanel>
 
-            <!-- Series Grid (toggled by view selection) -->
+        <!-- TV Series Section -->
+        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <TextBlock x:Name="SeriesSectionHeader"
+                       Text="TV Series"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Margin="24,16,24,0"
+                       Visibility="Collapsed" />
+
+            <!-- Series Grid -->
             <GridView
                 x:Name="SeriesGrid"
                 Visibility="Collapsed"
                 ItemsSource="{x:Bind ViewModel.Series, Mode=OneWay}"
-                Padding="24,8"
+                Padding="24,0"
                 IsItemClickEnabled="True"
                 ItemClick="SeriesGrid_ItemClick"
                 SelectionMode="None">
@@ -263,13 +280,16 @@
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>
+        </StackPanel>
 
-            <!-- Loading -->
-            <ProgressRing
-                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                Width="48" Height="48"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
-        </Grid>
+        <!-- Loading -->
+        <ProgressRing
+            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+            Width="48" Height="48"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Margin="0,100,0,0" />
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
