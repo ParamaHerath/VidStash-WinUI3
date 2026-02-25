@@ -15,6 +15,22 @@
         <helpers:RatingToStarsConverter x:Key="RatingToStarsConverter" />
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+
+        <!-- Remove GridView item hover overlay -->
+        <Style x:Key="NoHoverGridViewItemStyle" TargetType="GridViewItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewItem">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -123,7 +139,8 @@
                         Padding="24,0"
                         IsItemClickEnabled="True"
                         ItemClick="MoviesGrid_ItemClick"
-                        SelectionMode="None">
+                        SelectionMode="None"
+                        ItemContainerStyle="{StaticResource NoHoverGridViewItemStyle}">
 
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -137,7 +154,7 @@
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:Movie">
                         <Grid Width="170" Height="320" CornerRadius="8"
-                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              Background="Transparent"
                               PointerEntered="PosterCard_PointerEntered"
                               PointerExited="PosterCard_PointerExited"
                               RightTapped="MovieCard_RightTapped">
@@ -147,39 +164,8 @@
                             </Grid.RowDefinitions>
 
                             <Grid.RenderTransform>
-                                <CompositeTransform />
+                                <CompositeTransform x:Name="MovieCardTransform" CenterX="85" CenterY="160" />
                             </Grid.RenderTransform>
-
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="HoverStates">
-                                    <VisualState x:Name="Normal">
-                                        <VisualState.Setters>
-                                            <Setter Target="MovieCardTransform.ScaleX" Value="1.0" />
-                                            <Setter Target="MovieCardTransform.ScaleY" Value="1.0" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                    <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="MovieCardTransform"
-                                                           Storyboard.TargetProperty="ScaleX"
-                                                           To="1.05"
-                                                           Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut" />
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation Storyboard.TargetName="MovieCardTransform"
-                                                           Storyboard.TargetProperty="ScaleY"
-                                                           To="1.05"
-                                                           Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut" />
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
 
                             <Grid.ContextFlyout>
                                 <MenuFlyout>
@@ -193,11 +179,8 @@
                                 </MenuFlyout>
                             </Grid.ContextFlyout>
 
-                            <Grid Grid.Row="0" CornerRadius="8,8,0,0">
-                                <Grid.RenderTransform>
-                                    <CompositeTransform x:Name="MovieCardTransform" CenterX="85" CenterY="125" />
-                                </Grid.RenderTransform>
-
+                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
+                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                 <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                        Stretch="UniformToFill" />
 
@@ -218,16 +201,35 @@
                                         <ScalarTransition Duration="0:0:0.2" />
                                     </Grid.OpacityTransition>
 
+                                    <!-- Dark overlay for emphasis -->
+                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
+
                                     <!-- Play button -->
                                     <Button x:Name="PlayButton"
-                                            Style="{StaticResource AccentButtonStyle}"
-                                            Width="56" Height="56"
-                                            CornerRadius="28"
+                                            Width="64" Height="64"
+                                            CornerRadius="32"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Visibility="Collapsed"
-                                            Click="PlayMovie_Click">
-                                        <FontIcon Glyph="&#xE768;" FontSize="24" />
+                                            Click="PlayMovie_Click"
+                                            BorderThickness="0"
+                                            Padding="0">
+                                        <Button.Background>
+                                            <AcrylicBrush TintColor="White" TintOpacity="0.1" />
+                                        </Button.Background>
+                                        <Button.BackgroundSizing>
+                                            <BackgroundSizing>InnerBorderEdge</BackgroundSizing>
+                                        </Button.BackgroundSizing>
+                                        <Button.Resources>
+                                            <AcrylicBrush x:Key="ButtonBackgroundPointerOver" TintColor="White" TintOpacity="0.3" />
+                                            <AcrylicBrush x:Key="ButtonBackgroundPressed" TintColor="White" TintOpacity="0.4" />
+                                        </Button.Resources>
+                                        <Grid>
+                                            <Grid.Shadow>
+                                                <ThemeShadow />
+                                            </Grid.Shadow>
+                                            <FontIcon Glyph="&#xF5B0;" FontSize="24" Foreground="White" />
+                                        </Grid>
                                     </Button>
 
                                     <!-- Rating at bottom -->
@@ -239,7 +241,8 @@
                             </Grid>
 
                             <!-- Info -->
-                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2">
+                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                 <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" MaxLines="2"
                                            FontSize="13" />
@@ -268,7 +271,8 @@
                 Padding="24,0"
                 IsItemClickEnabled="True"
                 ItemClick="SeriesGrid_ItemClick"
-                SelectionMode="None">
+                SelectionMode="None"
+                ItemContainerStyle="{StaticResource NoHoverGridViewItemStyle}">
 
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -282,7 +286,7 @@
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:TvSeries">
                         <Grid Width="170" Height="320" CornerRadius="8"
-                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              Background="Transparent"
                               PointerEntered="PosterCard_PointerEntered"
                               PointerExited="PosterCard_PointerExited"
                               RightTapped="SeriesCard_RightTapped">
@@ -292,7 +296,7 @@
                             </Grid.RowDefinitions>
 
                             <Grid.RenderTransform>
-                                <CompositeTransform />
+                                <CompositeTransform x:Name="SeriesCardTransform" CenterX="85" CenterY="160" />
                             </Grid.RenderTransform>
 
                             <VisualStateManager.VisualStateGroups>
@@ -338,11 +342,8 @@
                                 </MenuFlyout>
                             </Grid.ContextFlyout>
 
-                            <Grid Grid.Row="0" CornerRadius="8,8,0,0">
-                                <Grid.RenderTransform>
-                                    <CompositeTransform x:Name="SeriesCardTransform" CenterX="85" CenterY="125" />
-                                </Grid.RenderTransform>
-
+                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
+                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                 <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                        Stretch="UniformToFill" />
 
@@ -362,16 +363,35 @@
                                         <ScalarTransition Duration="0:0:0.2" />
                                     </Grid.OpacityTransition>
 
+                                    <!-- Dark overlay for emphasis -->
+                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
+
                                     <!-- Play button (navigates to episodes) -->
                                     <Button x:Name="PlayButton"
-                                            Style="{StaticResource AccentButtonStyle}"
-                                            Width="56" Height="56"
-                                            CornerRadius="28"
+                                            Width="64" Height="64"
+                                            CornerRadius="32"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Visibility="Collapsed"
-                                            Click="PlaySeries_Click">
-                                        <FontIcon Glyph="&#xE768;" FontSize="24" />
+                                            Click="PlaySeries_Click"
+                                            BorderThickness="0"
+                                            Padding="0">
+                                        <Button.Background>
+                                            <AcrylicBrush TintColor="White" TintOpacity="0.3" />
+                                        </Button.Background>
+                                        <Button.BackgroundSizing>
+                                            <BackgroundSizing>InnerBorderEdge</BackgroundSizing>
+                                        </Button.BackgroundSizing>
+                                        <Button.Resources>
+                                            <AcrylicBrush x:Key="ButtonBackgroundPointerOver" TintColor="White" TintOpacity="0.4" />
+                                            <AcrylicBrush x:Key="ButtonBackgroundPressed" TintColor="White" TintOpacity="0.5" />
+                                        </Button.Resources>
+                                        <Grid>
+                                            <Grid.Shadow>
+                                                <ThemeShadow />
+                                            </Grid.Shadow>
+                                            <FontIcon Glyph="&#xF5B0;" FontSize="24" Foreground="White" />
+                                        </Grid>
                                     </Button>
 
                                     <!-- Rating at bottom -->
@@ -382,7 +402,8 @@
                                 </Grid>
                             </Grid>
 
-                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2">
+                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                 <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" MaxLines="2"
                                            FontSize="13" />

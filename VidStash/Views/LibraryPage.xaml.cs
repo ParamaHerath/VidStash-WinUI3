@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using VidStash.Models;
@@ -203,6 +204,33 @@ public sealed partial class LibraryPage : Page
             {
                 playButton.Visibility = Visibility.Visible;
             }
+
+            // Animate the scale transform
+            if (grid.RenderTransform is CompositeTransform transform)
+            {
+                var scaleXAnim = new DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                var scaleYAnim = new DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                var storyboard = new Storyboard();
+                Storyboard.SetTarget(scaleXAnim, transform);
+                Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                Storyboard.SetTarget(scaleYAnim, transform);
+                Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+
+                storyboard.Children.Add(scaleXAnim);
+                storyboard.Children.Add(scaleYAnim);
+                storyboard.Begin();
+            }
         }
     }
 
@@ -221,6 +249,33 @@ public sealed partial class LibraryPage : Page
             if (playButton != null)
             {
                 playButton.Visibility = Visibility.Collapsed;
+            }
+
+            // Animate back to normal scale
+            if (grid.RenderTransform is CompositeTransform transform)
+            {
+                var scaleXAnim = new DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                var scaleYAnim = new DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                var storyboard = new Storyboard();
+                Storyboard.SetTarget(scaleXAnim, transform);
+                Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                Storyboard.SetTarget(scaleYAnim, transform);
+                Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+
+                storyboard.Children.Add(scaleXAnim);
+                storyboard.Children.Add(scaleYAnim);
+                storyboard.Begin();
             }
         }
     }
