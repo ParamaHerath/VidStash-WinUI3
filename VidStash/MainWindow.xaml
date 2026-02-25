@@ -27,15 +27,45 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" Margin="16,0,0,0" VerticalAlignment="Center">
-                <FontIcon Glyph="&#xE714;" FontSize="16" />
-                <TextBlock Text="VidStash" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <!-- Back Button (hidden by default) -->
+                <Button x:Name="BackButton"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed"
+                        Click="BackButton_Click">
+                    <Button.RenderTransform>
+                        <TranslateTransform x:Name="BackButtonTransform" X="0" />
+                    </Button.RenderTransform>
+                </Button>
+
+                <!-- App Icon + Title with animation -->
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel.RenderTransform>
+                        <TranslateTransform x:Name="AppTitleTransform" X="0" />
+                    </StackPanel.RenderTransform>
+
+                    <FontIcon Glyph="&#xE714;" FontSize="16" />
+                    <TextBlock Text="VidStash" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
             </StackPanel>
+
+            <!-- Search Bar -->
+            <AutoSuggestBox x:Name="TitleBarSearchBox"
+                            Grid.Column="1"
+                            PlaceholderText="Search movies and series..."
+                            QueryIcon="Find"
+                            MinWidth="300"
+                            MaxWidth="500"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            Margin="16,0,150,0"
+                            TextChanged="TitleBarSearchBox_TextChanged" />
         </Grid>
 
         <NavigationView
             x:Name="NavView"
             Grid.Row="1"
-            IsBackButtonVisible="Auto"
+            IsBackButtonVisible="Collapsed"
             PaneDisplayMode="Left"
             OpenPaneLength="220"
             BackRequested="NavView_BackRequested"
@@ -43,7 +73,7 @@
             IsSettingsVisible="True">
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="All Movies" Tag="Movies" Icon="Video" />
+                <NavigationViewItem Content="Movies" Tag="Movies" Icon="Video" />
                 <NavigationViewItem Content="TV Series" Tag="Series" Icon="SlideShow" />
                 <NavigationViewItem Content="Unwatched" Tag="Unwatched">
                     <NavigationViewItem.Icon>

@@ -24,7 +24,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Toolbar -->
+        <!-- Toolbar with Count and Filters -->
         <Grid Grid.Row="0" Padding="24,16,24,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -32,22 +32,21 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <AutoSuggestBox
-                x:Name="SearchBox"
-                Grid.Column="0"
-                PlaceholderText="Search movies and series..."
-                QueryIcon="Find"
-                MaxWidth="400"
-                HorizontalAlignment="Left"
-                TextChanged="SearchBox_TextChanged" />
+            <!-- Count Cue -->
+            <TextBlock x:Name="CountCueText"
+                       Grid.Column="0"
+                       Text="Loading..."
+                       FontWeight="SemiBold"
+                       FontSize="14"
+                       VerticalAlignment="Center" />
 
-            <ComboBox
-                x:Name="SortCombo"
-                Grid.Column="1"
-                Margin="8,0"
-                PlaceholderText="Sort"
-                Width="140"
-                SelectionChanged="SortCombo_SelectionChanged">
+            <!-- Sort Combo -->
+            <ComboBox x:Name="SortCombo"
+                      Grid.Column="1"
+                      Margin="8,0"
+                      PlaceholderText="Sort"
+                      Width="140"
+                      SelectionChanged="SortCombo_SelectionChanged">
                 <ComboBoxItem Content="Title" IsSelected="True" />
                 <ComboBoxItem Content="Rating" />
                 <ComboBoxItem Content="Year" />
@@ -55,12 +54,12 @@
                 <ComboBoxItem Content="Date Added" />
             </ComboBox>
 
-            <ComboBox
-                x:Name="GenreCombo"
-                Grid.Column="2"
-                PlaceholderText="All Genres"
-                Width="160"
-                SelectionChanged="GenreCombo_SelectionChanged" />
+            <!-- Genre Filter -->
+            <ComboBox x:Name="GenreCombo"
+                      Grid.Column="2"
+                      PlaceholderText="All Genres"
+                      Width="160"
+                      SelectionChanged="GenreCombo_SelectionChanged" />
         </Grid>
 
         <!-- Scan Progress -->
@@ -71,7 +70,7 @@
             IsOpen="{x:Bind ViewModel.IsScanning, Mode=OneWay}"
             Severity="Informational"
             IsClosable="False"
-            Margin="24,0">
+            Margin="24,0,24,8">
             <InfoBar.Content>
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <ProgressRing IsActive="True" Width="16" Height="16" />
@@ -112,8 +111,9 @@
                 <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <TextBlock x:Name="MoviesSectionHeader"
                                Text="Movies"
-                               Style="{StaticResource TitleTextBlockStyle}"
-                               Margin="24,0"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Margin="24,8,24,0"
+                               FontWeight="SemiBold"
                                Visibility="Collapsed" />
 
                     <!-- Movies Grid -->
@@ -146,9 +146,44 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
+                            <Grid.RenderTransform>
+                                <CompositeTransform />
+                            </Grid.RenderTransform>
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="HoverStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Target="MovieCardTransform.ScaleX" Value="1.0" />
+                                            <Setter Target="MovieCardTransform.ScaleY" Value="1.0" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="MovieCardTransform"
+                                                           Storyboard.TargetProperty="ScaleX"
+                                                           To="1.05"
+                                                           Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="MovieCardTransform"
+                                                           Storyboard.TargetProperty="ScaleY"
+                                                           To="1.05"
+                                                           Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
                             <Grid.ContextFlyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="Play" Icon="Play" Click="PlayMovie_Click" />
+                                    <MenuFlyoutItem Text="Play" Icon="Play" Click="PlayMovieButton_Click" />
                                     <MenuFlyoutItem Text="Mark as Watched" Icon="Accept" Click="ToggleWatchedMovie_Click" />
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem Text="View Details" Icon="OpenFile" Click="MovieDetails_Click" />
@@ -158,8 +193,11 @@
                                 </MenuFlyout>
                             </Grid.ContextFlyout>
 
-                            <!-- Poster -->
                             <Grid Grid.Row="0" CornerRadius="8,8,0,0">
+                                <Grid.RenderTransform>
+                                    <CompositeTransform x:Name="MovieCardTransform" CenterX="85" CenterY="125" />
+                                </Grid.RenderTransform>
+
                                 <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                        Stretch="UniformToFill" />
 
@@ -174,12 +212,28 @@
                                     <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White" />
                                 </Border>
 
-                                <!-- Hover overlay -->
-                                <Grid x:Name="HoverOverlay" Opacity="0"
-                                      Background="#80000000" CornerRadius="8,8,0,0">
+                                <!-- Hover overlay with play button -->
+                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
+                                    <Grid.OpacityTransition>
+                                        <ScalarTransition Duration="0:0:0.2" />
+                                    </Grid.OpacityTransition>
+
+                                    <!-- Play button -->
+                                    <Button x:Name="PlayButton"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Width="56" Height="56"
+                                            CornerRadius="28"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Visibility="Collapsed"
+                                            Click="PlayMovie_Click">
+                                        <FontIcon Glyph="&#xE768;" FontSize="24" />
+                                    </Button>
+
+                                    <!-- Rating at bottom -->
                                     <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
                                         <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
-                                                   Foreground="White" FontSize="12" />
+                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -201,8 +255,9 @@
         <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasNoFolders, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <TextBlock x:Name="SeriesSectionHeader"
                        Text="TV Series"
-                       Style="{StaticResource TitleTextBlockStyle}"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
                        Margin="24,16,24,0"
+                       FontWeight="SemiBold"
                        Visibility="Collapsed" />
 
             <!-- Series Grid -->
@@ -236,8 +291,44 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
+                            <Grid.RenderTransform>
+                                <CompositeTransform />
+                            </Grid.RenderTransform>
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="HoverStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Target="SeriesCardTransform.ScaleX" Value="1.0" />
+                                            <Setter Target="SeriesCardTransform.ScaleY" Value="1.0" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="SeriesCardTransform"
+                                                           Storyboard.TargetProperty="ScaleX"
+                                                           To="1.05"
+                                                           Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="SeriesCardTransform"
+                                                           Storyboard.TargetProperty="ScaleY"
+                                                           To="1.05"
+                                                           Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
                             <Grid.ContextFlyout>
                                 <MenuFlyout>
+                                    <MenuFlyoutItem Text="View Episodes" Icon="Play" Click="SeriesDetails_Click" />
                                     <MenuFlyoutItem Text="Mark as Watched" Icon="Accept" Click="ToggleWatchedSeries_Click" />
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem Text="View Details" Icon="OpenFile" Click="SeriesDetails_Click" />
@@ -248,6 +339,10 @@
                             </Grid.ContextFlyout>
 
                             <Grid Grid.Row="0" CornerRadius="8,8,0,0">
+                                <Grid.RenderTransform>
+                                    <CompositeTransform x:Name="SeriesCardTransform" CenterX="85" CenterY="125" />
+                                </Grid.RenderTransform>
+
                                 <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                        Stretch="UniformToFill" />
 
@@ -261,11 +356,28 @@
                                     <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White" />
                                 </Border>
 
-                                <Grid x:Name="HoverOverlay" Opacity="0"
-                                      Background="#80000000" CornerRadius="8,8,0,0">
+                                <!-- Hover overlay with play button -->
+                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
+                                    <Grid.OpacityTransition>
+                                        <ScalarTransition Duration="0:0:0.2" />
+                                    </Grid.OpacityTransition>
+
+                                    <!-- Play button (navigates to episodes) -->
+                                    <Button x:Name="PlayButton"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Width="56" Height="56"
+                                            CornerRadius="28"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Visibility="Collapsed"
+                                            Click="PlaySeries_Click">
+                                        <FontIcon Glyph="&#xE768;" FontSize="24" />
+                                    </Button>
+
+                                    <!-- Rating at bottom -->
                                     <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
                                         <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
-                                                   Foreground="White" FontSize="12" />
+                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
                                     </StackPanel>
                                 </Grid>
                             </Grid>
