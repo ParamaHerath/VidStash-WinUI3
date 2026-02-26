@@ -60,6 +60,11 @@ namespace VidStash
                 ContentFrame.GoBack();
         }
 
+        private void HamburgerButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavView.IsPaneOpen = !NavView.IsPaneOpen;
+        }
+
         private void TitleBarSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (_libraryVm == null) return;
@@ -71,7 +76,7 @@ namespace VidStash
             var backButtonStoryboard = new Storyboard();
             var appTitleStoryboard = new Storyboard();
 
-            // Animate back button opacity and translation
+            // Animate back button opacity
             var backButtonOpacity = new DoubleAnimation
             {
                 To = show ? 1.0 : 0.0,
@@ -82,10 +87,10 @@ namespace VidStash
             Storyboard.SetTargetProperty(backButtonOpacity, "Opacity");
             backButtonStoryboard.Children.Add(backButtonOpacity);
 
-            // Animate app title translation
+            // Animate app title translation (reduced from 48 to 0 to account for smaller back button)
             var appTitleTranslation = new DoubleAnimation
             {
-                To = show ? 48 : 0,
+                To = show ? 0 : 0,
                 Duration = TimeSpan.FromMilliseconds(200),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };

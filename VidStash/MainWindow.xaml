@@ -14,6 +14,18 @@
     </Window.SystemBackdrop>
 
     <Grid>
+        <Grid.Resources>
+            <!-- Compact Button Style for Titlebar -->
+            <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Width" Value="32" />
+                <Setter Property="Height" Value="32" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -26,25 +38,32 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" Margin="16,0,0,0" VerticalAlignment="Center">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="0" Margin="4,0,0,0" VerticalAlignment="Center">
                 <!-- Back Button (hidden by default) -->
                 <Button x:Name="BackButton"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        Style="{StaticResource TitleBarButtonStyle}"
                         VerticalAlignment="Center"
                         Visibility="Collapsed"
-                        Click="BackButton_Click">
-                    <Button.RenderTransform>
-                        <TranslateTransform x:Name="BackButtonTransform" X="0" />
-                    </Button.RenderTransform>
+                        Click="BackButton_Click"
+                        ToolTipService.ToolTip="Back">
+                    <FontIcon Glyph="&#xE72B;" FontSize="12" />
+                </Button>
+
+                <!-- Hamburger Button -->
+                <Button x:Name="HamburgerButton"
+                        Style="{StaticResource TitleBarButtonStyle}"
+                        Click="HamburgerButton_Click"
+                        ToolTipService.ToolTip="Toggle navigation">
+                    <FontIcon Glyph="&#xE700;" FontSize="12" />
                 </Button>
 
                 <!-- App Icon + Title with animation -->
-                <StackPanel Orientation="Horizontal" Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="8,0,0,0">
                     <StackPanel.RenderTransform>
                         <TranslateTransform x:Name="AppTitleTransform" X="0" />
                     </StackPanel.RenderTransform>
 
-                    <FontIcon Glyph="&#xE714;" FontSize="16" />
+                    <Image Source="ms-appx:///Assets/Square44x44Logo.targetsize-16.png" Width="16" Height="16" />
                     <TextBlock Text="VidStash" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
@@ -58,7 +77,7 @@
                             MaxWidth="500"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
-                            Margin="16,0,150,0"
+                            Margin="160,0,150,0"
                             TextChanged="TitleBarSearchBox_TextChanged" />
         </Grid>
 
@@ -66,6 +85,7 @@
             x:Name="NavView"
             Grid.Row="1"
             IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="False"
             PaneDisplayMode="Left"
             OpenPaneLength="220"
             BackRequested="NavView_BackRequested"
