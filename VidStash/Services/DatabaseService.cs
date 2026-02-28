@@ -161,6 +161,23 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    public async Task DeleteEpisodeAsync(string id)
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        var episode = await db.TvEpisodes.FindAsync(id);
+        if (episode != null)
+        {
+            db.TvEpisodes.Remove(episode);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public async Task<List<TvEpisode>> GetEpisodesByFolderAsync(string folderPath)
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        return await db.TvEpisodes.Where(e => e.Folder == folderPath).ToListAsync();
+    }
+
     // Folders
     public async Task<List<Folder>> GetFoldersAsync()
     {
