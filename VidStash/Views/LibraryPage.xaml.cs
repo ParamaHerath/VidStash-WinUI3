@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using VidStash.Models;
@@ -18,6 +19,10 @@ public sealed partial class LibraryPage : Page
     {
         ViewModel = App.GetService<LibraryViewModel>();
         InitializeComponent();
+
+        // Subscribe to collection changes to update count
+        ViewModel.Movies.CollectionChanged += (s, e) => UpdateCountCue();
+        ViewModel.Series.CollectionChanged += (s, e) => UpdateCountCue();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -28,8 +33,8 @@ public sealed partial class LibraryPage : Page
         {
             System.Diagnostics.Debug.WriteLine("[LibraryPage] Calling ViewModel.InitializeAsync...");
             await ViewModel.InitializeAsync();
-            System.Diagnostics.Debug.WriteLine("[LibraryPage] UpdateGenreCombo...");
             UpdateGenreCombo();
+            UpdateCountCue();
             System.Diagnostics.Debug.WriteLine("[LibraryPage] OnNavigatedTo complete");
         }
         catch (Exception ex)
@@ -51,43 +56,95 @@ public sealed partial class LibraryPage : Page
         {
             GenreCombo.Items.Add(new ComboBoxItem { Content = genre });
         }
+        GenreCombo.SelectedIndex = 0;
+    }
+
+    private void UpdateCountCue()
+    {
+        var movieCount = ViewModel.Movies.Count;
+        var seriesCount = ViewModel.Series.Count;
+
+        if (ViewModel.SelectedView == "Movies")
+        {
+            CountCueText.Text = movieCount == 1 ? "1 Movie found" : $"{movieCount} Movies found";
+        }
+        else if (ViewModel.SelectedView == "Series")
+        {
+            CountCueText.Text = seriesCount == 1 ? "1 TV Series found" : $"{seriesCount} TV Series found";
+        }
+        else if (ViewModel.SelectedView == "Unwatched" || ViewModel.SelectedView == "Folder")
+        {
+            var parts = new List<string>();
+            if (movieCount > 0)
+                parts.Add(movieCount == 1 ? "1 Movie" : $"{movieCount} Movies");
+            if (seriesCount > 0)
+                parts.Add(seriesCount == 1 ? "1 TV Series" : $"{seriesCount} TV Series");
+
+            if (parts.Count == 0)
+                CountCueText.Text = "No media found";
+            else
+                CountCueText.Text = string.Join(" and ", parts) + " found";
+        }
+        else
+        {
+            CountCueText.Text = $"{movieCount + seriesCount} items found";
+        }
     }
 
     public void SetView(string view)
     {
         ViewModel.SelectedView = view;
+        ViewModel.SelectedFolderPath = null; // Clear folder filter
 
         if (view == "Series")
         {
             MoviesGrid.Visibility = Visibility.Collapsed;
             SeriesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
+            MoviesSectionHeader.Visibility = Visibility.Collapsed;
+            SeriesSectionHeader.Visibility = Visibility.Collapsed;
+            ViewModel.ApplySeriesFilters();
+        }
+        else if (view == "Unwatched")
+        {
+            // Show both Movies and Series for Unwatched with headers
+            MoviesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
+            SeriesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
+            MoviesSectionHeader.Visibility = Visibility.Visible;
+            SeriesSectionHeader.Visibility = Visibility.Visible;
+            ViewModel.ApplyFilters();
             ViewModel.ApplySeriesFilters();
         }
         else
         {
             MoviesGrid.Visibility = ViewModel.HasNoFolders ? Visibility.Collapsed : Visibility.Visible;
             SeriesGrid.Visibility = Visibility.Collapsed;
+            MoviesSectionHeader.Visibility = Visibility.Collapsed;
+            SeriesSectionHeader.Visibility = Visibility.Collapsed;
             ViewModel.ApplyFilters();
         }
+
+        UpdateCountCue();
     }
 
     public void SetFolderView(string folderPath)
     {
-        // Filter movies by folder - simplified for now
-        ViewModel.SelectedView = "Movies";
+        ViewModel.SelectedView = "Folder";
+        ViewModel.SelectedFolderPath = folderPath;
+
+        // Show both Movies and Series for folder view with headers
+        MoviesGrid.Visibility = Visibility.Visible;
+        SeriesGrid.Visibility = Visibility.Visible;
+        MoviesSectionHeader.Visibility = Visibility.Visible;
+        SeriesSectionHeader.Visibility = Visibility.Visible;
+
         ViewModel.ApplyFilters();
+        ViewModel.ApplySeriesFilters();
+        UpdateCountCue();
     }
 
     private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        _searchDebounce?.Stop();
-        _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
-        _searchDebounce.Tick += (s, e) =>
-        {
-            _searchDebounce.Stop();
-            ViewModel.SearchQuery = sender.Text;
-        };
-        _searchDebounce.Start();
+        // Search now handled in MainWindow titlebar
     }
 
     private void SortCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -95,6 +152,7 @@ public sealed partial class LibraryPage : Page
         if (SortCombo.SelectedItem is ComboBoxItem item)
         {
             ViewModel.SelectedSort = item.Content?.ToString() ?? "Title";
+            UpdateCountCue();
         }
     }
 
@@ -104,6 +162,7 @@ public sealed partial class LibraryPage : Page
         {
             var content = item.Content?.ToString();
             ViewModel.SelectedGenre = content == "All Genres" ? null : content;
+            UpdateCountCue();
         }
     }
 
@@ -134,11 +193,44 @@ public sealed partial class LibraryPage : Page
         if (sender is Grid grid)
         {
             var overlay = FindChild<Grid>(grid, "HoverOverlay");
+            var playButton = FindChild<Button>(grid, "PlayButton");
+
             if (overlay != null)
             {
                 overlay.Opacity = 1;
             }
-            grid.Scale = new System.Numerics.Vector3(1.05f, 1.05f, 1f);
+
+            if (playButton != null)
+            {
+                playButton.Visibility = Visibility.Visible;
+            }
+
+            // Animate the scale transform
+            if (grid.RenderTransform is CompositeTransform transform)
+            {
+                var scaleXAnim = new DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                var scaleYAnim = new DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                var storyboard = new Storyboard();
+                Storyboard.SetTarget(scaleXAnim, transform);
+                Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                Storyboard.SetTarget(scaleYAnim, transform);
+                Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+
+                storyboard.Children.Add(scaleXAnim);
+                storyboard.Children.Add(scaleYAnim);
+                storyboard.Begin();
+            }
         }
     }
 
@@ -147,11 +239,44 @@ public sealed partial class LibraryPage : Page
         if (sender is Grid grid)
         {
             var overlay = FindChild<Grid>(grid, "HoverOverlay");
+            var playButton = FindChild<Button>(grid, "PlayButton");
+
             if (overlay != null)
             {
                 overlay.Opacity = 0;
             }
-            grid.Scale = new System.Numerics.Vector3(1f, 1f, 1f);
+
+            if (playButton != null)
+            {
+                playButton.Visibility = Visibility.Collapsed;
+            }
+
+            // Animate back to normal scale
+            if (grid.RenderTransform is CompositeTransform transform)
+            {
+                var scaleXAnim = new DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                var scaleYAnim = new DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                var storyboard = new Storyboard();
+                Storyboard.SetTarget(scaleXAnim, transform);
+                Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                Storyboard.SetTarget(scaleYAnim, transform);
+                Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+
+                storyboard.Children.Add(scaleXAnim);
+                storyboard.Children.Add(scaleYAnim);
+                storyboard.Begin();
+            }
         }
     }
 
@@ -231,6 +356,24 @@ public sealed partial class LibraryPage : Page
 
     private void MovieCard_RightTapped(object sender, RightTappedRoutedEventArgs e) { }
     private void SeriesCard_RightTapped(object sender, RightTappedRoutedEventArgs e) { }
+
+    private async void PlayMovieButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetMovieFromContext(sender) is Movie movie)
+            await ViewModel.PlayMovieCommand.ExecuteAsync(movie);
+    }
+
+    private async void PlaySeries_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetSeriesFromContext(sender) is TvSeries series)
+        {
+            // Navigate to series detail where user can select episode
+            Frame.Navigate(typeof(SeriesDetailPage), series, new SlideNavigationTransitionInfo
+            {
+                Effect = SlideNavigationTransitionEffect.FromRight
+            });
+        }
+    }
 
     private static Movie? GetMovieFromContext(object sender) =>
         (sender as FrameworkElement)?.DataContext as Movie;

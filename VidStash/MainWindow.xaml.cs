@@ -1,6 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+using System;
 using VidStash.Views;
 using VidStash.ViewModels;
 
@@ -9,6 +11,7 @@ namespace VidStash
     public sealed partial class MainWindow : Window
     {
         private bool _navReady;
+        private LibraryViewModel? _libraryVm;
 
         public MainWindow()
         {
@@ -16,6 +19,9 @@ namespace VidStash
             {
                 InitializeComponent();
                 ExtendsContentIntoTitleBar = true;
+                SetTitleBar(AppTitleBar);
+
+                _libraryVm = App.GetService<LibraryViewModel>();
 
                 // Navigate first, then allow SelectionChanged to fire
                 ContentFrame.Navigate(typeof(LibraryPage));
@@ -26,6 +32,7 @@ namespace VidStash
                 {
                     NavView.SelectedItem = NavView.MenuItems[0];
                     _navReady = true;
+                    LoadFolders();
                 };
             }
             catch (Exception ex)
@@ -35,9 +42,124 @@ namespace VidStash
             }
         }
 
+        private void UpdateSearchPlaceholder(string view)
+        {
+            TitleBarSearchBox.PlaceholderText = view switch
+            {
+                "Movies" => "Search movies...",
+                "Series" => "Search TV series...",
+                "Unwatched" => "Search unwatched...",
+                "Folder" => "Search in folder...",
+                _ => "Search movies and series..."
+            };
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ContentFrame.CanGoBack)
+                ContentFrame.GoBack();
+        }
+
+        private void HamburgerButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavView.IsPaneOpen = !NavView.IsPaneOpen;
+        }
+
+        private void TitleBarSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (_libraryVm == null) return;
+            _libraryVm.SearchQuery = sender.Text;
+        }
+
+        private void AnimateBackButton(bool show)
+        {
+            var backButtonStoryboard = new Storyboard();
+            var appTitleStoryboard = new Storyboard();
+
+            // Animate back button opacity
+            var backButtonOpacity = new DoubleAnimation
+            {
+                To = show ? 1.0 : 0.0,
+                Duration = TimeSpan.FromMilliseconds(200),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            Storyboard.SetTarget(backButtonOpacity, BackButton);
+            Storyboard.SetTargetProperty(backButtonOpacity, "Opacity");
+            backButtonStoryboard.Children.Add(backButtonOpacity);
+
+            // Animate app title translation (reduced from 48 to 0 to account for smaller back button)
+            var appTitleTranslation = new DoubleAnimation
+            {
+                To = show ? 0 : 0,
+                Duration = TimeSpan.FromMilliseconds(200),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            Storyboard.SetTarget(appTitleTranslation, AppTitleTransform);
+            Storyboard.SetTargetProperty(appTitleTranslation, "X");
+            appTitleStoryboard.Children.Add(appTitleTranslation);
+
+            if (show)
+            {
+                BackButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                backButtonStoryboard.Completed += (s, e) => BackButton.Visibility = Visibility.Collapsed;
+            }
+
+            backButtonStoryboard.Begin();
+            appTitleStoryboard.Begin();
+        }
+
+        private async void LoadFolders()
+        {
+            try
+            {
+                var libraryVm = App.GetService<LibraryViewModel>();
+
+                // Clear existing folder items (everything after the separator)
+                var separatorIndex = -1;
+                for (int i = 0; i < NavView.MenuItems.Count; i++)
+                {
+                    if (NavView.MenuItems[i] is NavigationViewItemSeparator)
+                    {
+                        separatorIndex = i;
+                        break;
+                    }
+                }
+
+                if (separatorIndex >= 0)
+                {
+                    // Remove items after header
+                    for (int i = NavView.MenuItems.Count - 1; i > separatorIndex + 1; i--)
+                    {
+                        NavView.MenuItems.RemoveAt(i);
+                    }
+                }
+
+                // Add folder items
+                foreach (var folder in libraryVm.Folders)
+                {
+                    var folderItem = new NavigationViewItem
+                    {
+                        Content = folder.Name,
+                        Tag = $"Folder:{folder.Path}",
+                        Icon = new FontIcon { Glyph = "\uE8B7" }
+                    };
+                    NavView.MenuItems.Add(folderItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainWindow] LoadFolders failed: {ex}");
+            }
+        }
+
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            NavView.IsBackEnabled = ContentFrame.CanGoBack;
+            var canGoBack = ContentFrame.CanGoBack;
+            AnimateBackButton(canGoBack);
+            NavView.IsBackEnabled = canGoBack;
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -60,6 +182,7 @@ namespace VidStash
                     case "Movies":
                     case "Series":
                     case "Unwatched":
+                        UpdateSearchPlaceholder(tag);
                         if (ContentFrame.Content is LibraryPage existingPage)
                         {
                             existingPage.SetView(tag);
@@ -73,13 +196,14 @@ namespace VidStash
                         break;
 
                     case "AddFolder":
-                        _ = App.GetService<LibraryViewModel>().AddFolderCommand.ExecuteAsync(null);
+                        _ = AddFolderAsync();
                         break;
 
                     default:
                         if (tag?.StartsWith("Folder:") == true)
                         {
                             var folderPath = tag["Folder:".Length..];
+                            UpdateSearchPlaceholder("Folder");
                             if (ContentFrame.Content is LibraryPage folderPage)
                                 folderPage.SetFolderView(folderPath);
                             else
@@ -94,6 +218,20 @@ namespace VidStash
             }
         }
 
+        private async Task AddFolderAsync()
+        {
+            try
+            {
+                var libraryVm = App.GetService<LibraryViewModel>();
+                await libraryVm.AddFolderCommand.ExecuteAsync(null);
+                LoadFolders(); // Refresh folder list
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainWindow] AddFolderAsync failed: {ex}");
+            }
+        }
+
         private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             if (ContentFrame.CanGoBack)
@@ -101,5 +239,10 @@ namespace VidStash
         }
 
         public NavigationView GetNavigationView() => NavView;
+
+        public void RefreshFolders()
+        {
+            LoadFolders();
+        }
     }
 }

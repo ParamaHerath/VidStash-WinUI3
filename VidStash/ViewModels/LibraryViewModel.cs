@@ -53,6 +53,9 @@ public partial class LibraryViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasNoApiKey;
 
+    [ObservableProperty]
+    private string? _selectedFolderPath;
+
     private List<Movie> _allMovies = [];
     private List<TvSeries> _allSeries = [];
     private CancellationTokenSource? _scanCts;
@@ -188,6 +191,12 @@ public partial class LibraryViewModel : ObservableObject
     {
         var filtered = _allMovies.AsEnumerable();
 
+        // Folder filter
+        if (!string.IsNullOrEmpty(SelectedFolderPath))
+        {
+            filtered = filtered.Where(m => m.Folder == SelectedFolderPath);
+        }
+
         if (!string.IsNullOrWhiteSpace(SearchQuery))
         {
             var q = SearchQuery.ToLowerInvariant();
@@ -229,6 +238,12 @@ public partial class LibraryViewModel : ObservableObject
     public void ApplySeriesFilters()
     {
         var filtered = _allSeries.AsEnumerable();
+
+        // Folder filter
+        if (!string.IsNullOrEmpty(SelectedFolderPath))
+        {
+            filtered = filtered.Where(s => s.Folder == SelectedFolderPath);
+        }
 
         if (!string.IsNullOrWhiteSpace(SearchQuery))
         {
@@ -308,6 +323,12 @@ public partial class LibraryViewModel : ObservableObject
         };
         await _db.AddFolderAsync(newFolder);
         await LoadFoldersAsync();
+
+        // Refresh folder list in NavigationView
+        if (App.MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.RefreshFolders();
+        }
 
         await ScanFolderAsync(folder.Path);
     }
