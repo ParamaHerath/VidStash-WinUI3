@@ -145,6 +145,23 @@ public class TmdbService
         }
     }
 
+    public async Task<List<TmdbMovie>> GetSimilarAsync(int movieId)
+    {
+        var apiKey = await GetApiKeyAsync();
+        if (string.IsNullOrEmpty(apiKey)) return [];
+
+        try
+        {
+            var result = await _http.GetFromJsonAsync<TmdbSearchResult<TmdbMovie>>(
+                $"{BaseUrl}/movie/{movieId}/similar?api_key={apiKey}");
+            return result?.Results ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
     public record ScoredResult(MediaType Type, int TmdbId, string Title, double Score,
         string? PosterPath, string? BackdropPath, double Rating, int VoteCount,
         double Popularity, string? Overview, string? Genres, int? Year,

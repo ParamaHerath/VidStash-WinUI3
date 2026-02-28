@@ -42,12 +42,24 @@ public sealed partial class MovieDetailPage : Page
 
         TitleText.Text = movie.Title;
         YearText.Text = movie.Year ?? "";
-        RuntimeText.Text = movie.Runtime.HasValue ? $"{movie.Runtime}min" : "";
-        RatingText.Text = $"⭐ {movie.Rating:F1}";
+
+        if (movie.Runtime.HasValue)
+        {
+            var hours = movie.Runtime.Value / 60;
+            var mins = movie.Runtime.Value % 60;
+            RuntimeText.Text = hours > 0 ? $"{hours}h {mins}m" : $"{mins}m";
+        }
+        else
+        {
+            RuntimeText.Text = "";
+        }
+
+        RatingText.Text = $"{movie.Rating:F1}/10";
         OverviewText.Text = movie.Overview ?? "No overview available.";
-        FilePathText.Text = $"Path: {movie.Path}";
-        FileSizeText.Text = $"Size: {Helpers.FileHelpers.FormatFileSize(movie.Size)}";
-        TmdbIdText.Text = movie.TmdbId.HasValue ? $"TMDB ID: {movie.TmdbId}" : "TMDB: Not matched";
+        FilenameText.Text = movie.Filename ?? "";
+        FilePathText.Text = System.IO.Path.GetDirectoryName(movie.Path) ?? movie.Path;
+        FileSizeText.Text = Helpers.FileHelpers.FormatFileSize(movie.Size);
+        TmdbIdText.Text = movie.TmdbId?.ToString() ?? "Not matched";
         WatchedButtonText.Text = movie.Watched ? "Mark Unwatched" : "Mark Watched";
 
         GenrePills.ItemsSource = ViewModel.Genres;
@@ -61,6 +73,11 @@ public sealed partial class MovieDetailPage : Page
         {
             PosterBrush.ImageSource = new BitmapImage(new Uri(TmdbService.GetPosterUrl(movie.Poster, "w500")));
         }
+
+        SimilarSection.Visibility = ViewModel.SimilarMovies.Count > 0
+            ? Visibility.Visible : Visibility.Collapsed;
+        RecommendedSection.Visibility = ViewModel.Recommendations.Count > 0
+            ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async void Play_Click(object sender, RoutedEventArgs e) =>
@@ -135,6 +152,28 @@ public sealed partial class MovieDetailPage : Page
                 await selectDialog.ShowAsync();
             }
         }
+    }
+
+    private async void OpenInExplorer_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.Movie == null) return;
+        try
+        {
+            var folder = System.IO.Path.GetDirectoryName(ViewModel.Movie.Path);
+            if (folder != null)
+            {
+                var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(folder);
+                await Windows.System.Launcher.LaunchFolderAsync(storageFolder);
+            }
+        }
+        catch { }
+    }
+
+    private async void SearchInGoogle_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.Movie == null) return;
+        var query = Uri.EscapeDataString($"{ViewModel.Movie.Title} {ViewModel.Movie.Year} movie");
+        await Windows.System.Launcher.LaunchUriAsync(new Uri($"https://www.google.com/search?q={query}"));
     }
 
     private static DataTemplate CreateSearchResultTemplate()
