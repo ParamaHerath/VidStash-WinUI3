@@ -377,8 +377,20 @@ public partial class LibraryViewModel : ObservableObject
     [RelayCommand]
     private async Task RemoveFolderAsync(Folder folder)
     {
+        await _db.DeleteMoviesByFolderAsync(folder.Path);
+        await _db.DeleteEpisodesByFolderAsync(folder.Path);
+        await _db.DeleteOrphanedSeriesAsync();
         await _db.DeleteFolderAsync(folder.Id);
+
         await LoadFoldersAsync();
+        await LoadMoviesAsync();
+        await LoadSeriesAsync();
+        ExtractGenres();
+
+        if (App.MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.RefreshFolders();
+        }
     }
 
     [RelayCommand]

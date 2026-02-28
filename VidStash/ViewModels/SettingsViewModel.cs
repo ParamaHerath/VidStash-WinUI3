@@ -102,6 +102,14 @@ public partial class SettingsViewModel : ObservableObject
         UpdateCacheSize();
     }
 
+    [RelayCommand]
+    private async Task ClearDatabaseAsync()
+    {
+        await _db.ClearAllDataAsync();
+        _imageCache.ClearCache();
+        UpdateCacheSize();
+    }
+
     private void UpdateCacheSize()
     {
         var size = _imageCache.GetCacheSize();
