@@ -33,6 +33,7 @@ namespace VidStash
                     NavView.SelectedItem = NavView.MenuItems[0];
                     _navReady = true;
                     LoadFolders();
+                    _ = StartupScanAsync();
                 };
             }
             catch (Exception ex)
@@ -195,10 +196,6 @@ namespace VidStash
                         }
                         break;
 
-                    case "AddFolder":
-                        _ = AddFolderAsync();
-                        break;
-
                     default:
                         if (tag?.StartsWith("Folder:") == true)
                         {
@@ -213,6 +210,23 @@ namespace VidStash
                                     newFolderPage.SetFolderView(folderPath);
                             }
                         }
+                        break;
+                }
+            }
+        }
+
+        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        {
+            if (args.InvokedItemContainer is NavigationViewItem item)
+            {
+                var tag = item.Tag?.ToString();
+                switch (tag)
+                {
+                    case "AddFolder":
+                        _ = AddFolderAsync();
+                        break;
+                    case "RefreshLibrary":
+                        _ = ManualRefreshAsync();
                         break;
                 }
             }
@@ -243,6 +257,103 @@ namespace VidStash
         public void RefreshFolders()
         {
             LoadFolders();
+            if (ContentFrame.Content is LibraryPage page)
+            {
+                page.RefreshView();
+            }
+        }
+
+        private async Task StartupScanAsync()
+        {
+            try
+            {
+                if (_libraryVm == null) return;
+
+                await _libraryVm.InitializeAsync();
+
+                if (_libraryVm.Folders.Count == 0) return;
+
+                ScanToastInfoBar.Title = "Scanning library";
+                ScanToastInfoBar.Message = "Checking for new media...";
+                ScanToastInfoBar.Severity = InfoBarSeverity.Informational;
+                ScanToastInfoBar.IsClosable = false;
+                ScanToastInfoBar.IsOpen = true;
+
+                var (moviesBefore, seriesBefore, moviesAfter, seriesAfter) = await _libraryVm.StartupScanAsync();
+
+                if (ContentFrame.Content is LibraryPage page)
+                {
+                    page.RefreshView();
+                }
+
+                await ShowScanResultAsync(moviesBefore, seriesBefore, moviesAfter, seriesAfter);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainWindow] StartupScan failed: {ex}");
+                ScanToastInfoBar.IsOpen = false;
+            }
+        }
+
+        private async Task ManualRefreshAsync()
+        {
+            try
+            {
+                if (_libraryVm == null || _libraryVm.Folders.Count == 0) return;
+
+                ScanToastInfoBar.Title = "Refreshing library";
+                ScanToastInfoBar.Message = "Scanning all folders...";
+                ScanToastInfoBar.Severity = InfoBarSeverity.Informational;
+                ScanToastInfoBar.IsClosable = false;
+                ScanToastInfoBar.IsOpen = true;
+
+                var (moviesBefore, seriesBefore, moviesAfter, seriesAfter) = await _libraryVm.StartupScanAsync();
+
+                if (ContentFrame.Content is LibraryPage page)
+                {
+                    page.RefreshView();
+                }
+
+                await ShowScanResultAsync(moviesBefore, seriesBefore, moviesAfter, seriesAfter);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainWindow] ManualRefresh failed: {ex}");
+                ScanToastInfoBar.IsOpen = false;
+            }
+        }
+
+        private async Task ShowScanResultAsync(int moviesBefore, int seriesBefore, int moviesAfter, int seriesAfter)
+        {
+            var addedMovies = Math.Max(0, moviesAfter - moviesBefore);
+            var removedMovies = Math.Max(0, moviesBefore - moviesAfter);
+            var addedSeries = Math.Max(0, seriesAfter - seriesBefore);
+            var removedSeries = Math.Max(0, seriesBefore - seriesAfter);
+
+            bool hasChanges = addedMovies > 0 || removedMovies > 0 || addedSeries > 0 || removedSeries > 0;
+
+            if (hasChanges)
+            {
+                var parts = new List<string>();
+                if (addedMovies > 0) parts.Add($"{addedMovies} new movie{(addedMovies != 1 ? "s" : "")}");
+                if (addedSeries > 0) parts.Add($"{addedSeries} new series");
+                if (removedMovies > 0) parts.Add($"{removedMovies} movie{(removedMovies != 1 ? "s" : "")} removed");
+                if (removedSeries > 0) parts.Add($"{removedSeries} series removed");
+
+                ScanToastInfoBar.Title = "Scan complete";
+                ScanToastInfoBar.Message = string.Join(", ", parts);
+                ScanToastInfoBar.Severity = InfoBarSeverity.Success;
+            }
+            else
+            {
+                ScanToastInfoBar.Title = "Library is up to date";
+                ScanToastInfoBar.Message = string.Empty;
+                ScanToastInfoBar.Severity = InfoBarSeverity.Informational;
+            }
+
+            ScanToastInfoBar.IsClosable = true;
+            await Task.Delay(4000);
+            ScanToastInfoBar.IsOpen = false;
         }
     }
 }

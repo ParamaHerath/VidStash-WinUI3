@@ -161,6 +161,23 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    public async Task DeleteEpisodeAsync(string id)
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        var episode = await db.TvEpisodes.FindAsync(id);
+        if (episode != null)
+        {
+            db.TvEpisodes.Remove(episode);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public async Task<List<TvEpisode>> GetEpisodesByFolderAsync(string folderPath)
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        return await db.TvEpisodes.Where(e => e.Folder == folderPath).ToListAsync();
+    }
+
     // Folders
     public async Task<List<Folder>> GetFoldersAsync()
     {
@@ -197,6 +214,42 @@ public class DatabaseService
             db.Folders.Remove(folder);
             await db.SaveChangesAsync();
         }
+    }
+
+    public async Task DeleteMoviesByFolderAsync(string folderPath)
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        var movies = await db.Movies.Where(m => m.Folder == folderPath).ToListAsync();
+        db.Movies.RemoveRange(movies);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task DeleteEpisodesByFolderAsync(string folderPath)
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        var episodes = await db.TvEpisodes.Where(e => e.Folder == folderPath).ToListAsync();
+        db.TvEpisodes.RemoveRange(episodes);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task DeleteOrphanedSeriesAsync()
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        var orphaned = await db.TvSeries
+            .Where(s => !db.TvEpisodes.Any(e => e.SeriesId == s.Id))
+            .ToListAsync();
+        db.TvSeries.RemoveRange(orphaned);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task ClearAllDataAsync()
+    {
+        using var db = await _factory.CreateDbContextAsync();
+        db.TvEpisodes.RemoveRange(db.TvEpisodes);
+        db.TvSeries.RemoveRange(db.TvSeries);
+        db.Movies.RemoveRange(db.Movies);
+        db.Folders.RemoveRange(db.Folders);
+        await db.SaveChangesAsync();
     }
 
     // Settings

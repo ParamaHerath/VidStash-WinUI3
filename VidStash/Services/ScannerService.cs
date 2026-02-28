@@ -24,6 +24,9 @@ public class ScannerService
     public async Task ScanFolderAsync(string folderPath, IProgress<ScanProgress>? progress = null,
         CancellationToken ct = default)
     {
+        // Prune database entries whose files no longer exist on disk
+        await PruneDeletedFilesAsync(folderPath, ct);
+
         var files = FileHelpers.ScanForVideoFiles(folderPath).ToList();
         int total = files.Count;
 
@@ -50,6 +53,31 @@ public class ScannerService
             folder.LastScanned = DateTime.UtcNow.ToString("o");
             await _db.UpdateFolderAsync(folder);
         }
+    }
+
+    private async Task PruneDeletedFilesAsync(string folderPath, CancellationToken ct)
+    {
+        var movies = await _db.GetMoviesByFolderAsync(folderPath);
+        foreach (var movie in movies)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (!File.Exists(movie.Path))
+            {
+                await _db.DeleteMovieAsync(movie.Id);
+            }
+        }
+
+        var episodes = await _db.GetEpisodesByFolderAsync(folderPath);
+        foreach (var episode in episodes)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (!File.Exists(episode.Path))
+            {
+                await _db.DeleteEpisodeAsync(episode.Id);
+            }
+        }
+
+        await _db.DeleteOrphanedSeriesAsync();
     }
 
     private async Task ProcessFileAsync(string filePath, string folderPath)

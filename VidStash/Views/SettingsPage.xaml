@@ -88,6 +88,17 @@
 
             <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
+            <!-- Danger Zone -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Danger Zone" FontWeight="SemiBold" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                <TextBlock Text="Clear all movies, series, episodes, and folders from the database. Your actual files will not be deleted."
+                           Opacity="0.7" FontSize="13" TextWrapping="WrapWholeWords" />
+                <Button x:Name="ClearDatabaseButton" Content="Clear Database" Click="ClearDatabase_Click"
+                        Style="{StaticResource AccentButtonStyle}" />
+            </StackPanel>
+
+            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
             <!-- About -->
             <StackPanel Spacing="8">
                 <TextBlock Text="About" FontWeight="SemiBold" FontSize="16" />

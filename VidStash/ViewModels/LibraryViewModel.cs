@@ -59,7 +59,7 @@ public partial class LibraryViewModel : ObservableObject
     private List<Movie> _allMovies = [];
     private List<TvSeries> _allSeries = [];
     private CancellationTokenSource? _scanCts;
-    private bool _initialized;
+    private Task? _initializeTask;
 
     public LibraryViewModel(DatabaseService db, ScannerService scanner, TmdbService tmdb)
     {
@@ -68,10 +68,13 @@ public partial class LibraryViewModel : ObservableObject
         _tmdb = tmdb;
     }
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-        if (_initialized || IsLoading) return;
-        _initialized = true;
+        return _initializeTask ??= InitializeCoreAsync();
+    }
+
+    private async Task InitializeCoreAsync()
+    {
         IsLoading = true;
         try
         {
@@ -374,11 +377,38 @@ public partial class LibraryViewModel : ObservableObject
         }
     }
 
+    public async Task<(int moviesBefore, int seriesBefore, int moviesAfter, int seriesAfter)> StartupScanAsync()
+    {
+        if (Folders.Count == 0) return (0, 0, 0, 0);
+
+        var moviesBefore = _allMovies.Count;
+        var seriesBefore = _allSeries.Count;
+
+        foreach (var folder in Folders.ToList())
+        {
+            await ScanFolderAsync(folder.Path);
+        }
+
+        return (moviesBefore, seriesBefore, _allMovies.Count, _allSeries.Count);
+    }
+
     [RelayCommand]
     private async Task RemoveFolderAsync(Folder folder)
     {
+        await _db.DeleteMoviesByFolderAsync(folder.Path);
+        await _db.DeleteEpisodesByFolderAsync(folder.Path);
+        await _db.DeleteOrphanedSeriesAsync();
         await _db.DeleteFolderAsync(folder.Id);
+
         await LoadFoldersAsync();
+        await LoadMoviesAsync();
+        await LoadSeriesAsync();
+        ExtractGenres();
+
+        if (App.MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.RefreshFolders();
+        }
     }
 
     [RelayCommand]

@@ -90,6 +90,7 @@
             OpenPaneLength="220"
             BackRequested="NavView_BackRequested"
             SelectionChanged="NavView_SelectionChanged"
+            ItemInvoked="NavView_ItemInvoked"
             IsSettingsVisible="True">
 
             <NavigationView.MenuItems>
@@ -105,14 +106,29 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Add Folder" Tag="AddFolder">
+                <NavigationViewItem Content="Add Folder" Tag="AddFolder" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE710;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Refresh Library" Tag="RefreshLibrary" SelectsOnInvoked="False">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72C;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.FooterMenuItems>
 
-            <Frame x:Name="ContentFrame" />
+            <Grid>
+                <Frame x:Name="ContentFrame" />
+                <InfoBar x:Name="ScanToastInfoBar"
+                         VerticalAlignment="Bottom"
+                         HorizontalAlignment="Center"
+                         Margin="0,0,0,16"
+                         IsOpen="False"
+                         IsClosable="True"
+                         CornerRadius="8"
+                         MaxWidth="450" />
+            </Grid>
         </NavigationView>
     </Grid>
 </Window>

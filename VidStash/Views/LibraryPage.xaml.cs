@@ -23,6 +23,9 @@ public sealed partial class LibraryPage : Page
         // Subscribe to collection changes to update count
         ViewModel.Movies.CollectionChanged += (s, e) => UpdateCountCue();
         ViewModel.Series.CollectionChanged += (s, e) => UpdateCountCue();
+
+        // Refresh view state when folder availability changes
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -89,6 +92,26 @@ public sealed partial class LibraryPage : Page
         {
             CountCueText.Text = $"{movieCount + seriesCount} items found";
         }
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(LibraryViewModel.HasNoFolders))
+        {
+            if (ViewModel.SelectedView == "Folder" && !string.IsNullOrEmpty(ViewModel.SelectedFolderPath))
+                SetFolderView(ViewModel.SelectedFolderPath);
+            else
+                SetView(ViewModel.SelectedView);
+        }
+    }
+
+    public void RefreshView()
+    {
+        UpdateGenreCombo();
+        if (ViewModel.SelectedView == "Folder" && !string.IsNullOrEmpty(ViewModel.SelectedFolderPath))
+            SetFolderView(ViewModel.SelectedFolderPath);
+        else
+            SetView(ViewModel.SelectedView);
     }
 
     public void SetView(string view)

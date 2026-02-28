@@ -97,4 +97,35 @@ public sealed partial class SettingsPage : Page
         ViewModel.ClearCacheCommand.Execute(null);
         CacheSizeText.Text = $"Cache size: {ViewModel.CacheSize}";
     }
+
+    private async void ClearDatabase_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "Clear Database",
+            Content = "This will remove all movies, series, episodes, and folders from the database. Your actual files will not be deleted.\n\nAre you sure?",
+            PrimaryButtonText = "Clear Everything",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = this.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            await ViewModel.ClearDatabaseCommand.ExecuteAsync(null);
+            CacheSizeText.Text = $"Cache size: {ViewModel.CacheSize}";
+
+            if (_libraryVm != null)
+            {
+                await _libraryVm.RefreshLibraryAsync();
+                FoldersList.ItemsSource = _libraryVm.Folders;
+            }
+
+            if (App.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.RefreshFolders();
+            }
+        }
+    }
 }
