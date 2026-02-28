@@ -196,14 +196,6 @@ namespace VidStash
                         }
                         break;
 
-                    case "AddFolder":
-                        _ = AddFolderAsync();
-                        break;
-
-                    case "RefreshLibrary":
-                        _ = ManualRefreshAsync();
-                        break;
-
                     default:
                         if (tag?.StartsWith("Folder:") == true)
                         {
@@ -218,6 +210,23 @@ namespace VidStash
                                     newFolderPage.SetFolderView(folderPath);
                             }
                         }
+                        break;
+                }
+            }
+        }
+
+        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        {
+            if (args.InvokedItemContainer is NavigationViewItem item)
+            {
+                var tag = item.Tag?.ToString();
+                switch (tag)
+                {
+                    case "AddFolder":
+                        _ = AddFolderAsync();
+                        break;
+                    case "RefreshLibrary":
+                        _ = ManualRefreshAsync();
                         break;
                 }
             }
