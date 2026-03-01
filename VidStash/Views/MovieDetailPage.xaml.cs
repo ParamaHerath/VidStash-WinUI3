@@ -1,5 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using VidStash.Models;
@@ -185,5 +188,73 @@ public sealed partial class MovieDetailPage : Page
                 <TextBlock Text=""{Binding Title}"" Margin=""8"" />
             </DataTemplate>");
         return template;
+    }
+
+    private void TmdbCard_PointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is not Grid grid) return;
+
+        var overlay = FindChild<Grid>(grid, "HoverOverlay");
+        if (overlay != null)
+            overlay.Opacity = 1;
+
+        if (grid.RenderTransform is CompositeTransform transform)
+        {
+            var sb = new Storyboard();
+            foreach (var prop in new[] { "ScaleX", "ScaleY" })
+            {
+                var anim = new DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                Storyboard.SetTarget(anim, transform);
+                Storyboard.SetTargetProperty(anim, prop);
+                sb.Children.Add(anim);
+            }
+            sb.Begin();
+        }
+    }
+
+    private void TmdbCard_PointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is not Grid grid) return;
+
+        var overlay = FindChild<Grid>(grid, "HoverOverlay");
+        if (overlay != null)
+            overlay.Opacity = 0;
+
+        if (grid.RenderTransform is CompositeTransform transform)
+        {
+            var sb = new Storyboard();
+            foreach (var prop in new[] { "ScaleX", "ScaleY" })
+            {
+                var anim = new DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                Storyboard.SetTarget(anim, transform);
+                Storyboard.SetTargetProperty(anim, prop);
+                sb.Children.Add(anim);
+            }
+            sb.Begin();
+        }
+    }
+
+    private static T? FindChild<T>(DependencyObject parent, string name) where T : FrameworkElement
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T element && element.Name == name)
+                return element;
+            var result = FindChild<T>(child, name);
+            if (result != null) return result;
+        }
+        return null;
     }
 }

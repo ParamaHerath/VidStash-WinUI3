@@ -56,20 +56,20 @@
 
                     <!-- Details -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="8">
-                        <TextBlock x:Name="TitleText" FontSize="28" FontWeight="SemiBold"
+                        <TextBlock x:Name="TitleText" FontSize="60" FontWeight="Bold"
                                    TextWrapping="WrapWholeWords" />
-                        <StackPanel Orientation="Horizontal" Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE787;" FontSize="14" Opacity="0.7" />
-                                <TextBlock x:Name="YearText" Opacity="0.7" FontSize="16" />
+                        <StackPanel Orientation="Horizontal" Spacing="16" >
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE787;" FontSize="16" Opacity="0.7" />
+                                <TextBlock x:Name="YearText" Opacity="0.7" FontSize="16" FontWeight="SemiBold" />
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE823;" FontSize="14" Opacity="0.7" />
-                                <TextBlock x:Name="RuntimeText" Opacity="0.7" FontSize="16" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE823;" FontSize="16" Opacity="0.7" />
+                                <TextBlock x:Name="RuntimeText" Opacity="0.7" FontSize="16" FontWeight="SemiBold" />
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE735;" FontSize="14" Foreground="Gold" />
-                                <TextBlock x:Name="RatingText" FontSize="16" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE735;" FontSize="16" Foreground="Gold" />
+                                <TextBlock x:Name="RatingText" Opacity="0.7" FontSize="16" FontWeight="SemiBold" />
                             </StackPanel>
                         </StackPanel>
 
@@ -81,8 +81,8 @@
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
                                     <Border Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                            CornerRadius="12" Padding="12,4">
-                                        <TextBlock Text="{x:Bind}" FontSize="12" />
+                                            CornerRadius="6" Padding="12,4">
+                                        <TextBlock Text="{x:Bind}" FontSize="12" FontWeight="SemiBold" />
                                     </Border>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
@@ -135,10 +135,10 @@
                     </StackPanel>
 
                     <!-- Overview -->
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="12" >
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE946;" FontSize="18" />
-                            <TextBlock Text="Overview" FontSize="18" FontWeight="SemiBold" />
+                            <FontIcon Glyph="&#xE946;" FontSize="22" />
+                            <TextBlock Text="Overview" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
                         <TextBlock x:Name="OverviewText" TextWrapping="WrapWholeWords"
                                    FontSize="14" LineHeight="22" Opacity="0.85" />
@@ -147,30 +147,57 @@
                     <!-- Similar Movies -->
                     <StackPanel x:Name="SimilarSection" Spacing="12" Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE7C5;" FontSize="18" />
-                            <TextBlock Text="Similar Movies" FontSize="18" FontWeight="SemiBold" />
+                            <FontIcon Glyph="&#xE7C5;" FontSize="22" />
+                            <TextBlock Text="Similar Movies" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
                         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Disabled"
-                                      HorizontalScrollMode="Enabled">
+                                      HorizontalScrollMode="Enabled"
+                                      Padding="4,8,4,8">
                             <ItemsRepeater ItemsSource="{x:Bind ViewModel.SimilarMovies, Mode=OneWay}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Orientation="Horizontal" Spacing="12" />
                                 </ItemsRepeater.Layout>
                                 <ItemsRepeater.ItemTemplate>
                                     <DataTemplate x:DataType="models:TmdbMovie">
-                                        <StackPanel Width="140" Spacing="6">
-                                            <Border CornerRadius="8" Width="140" Height="200">
-                                                <Border.Background>
-                                                    <ImageBrush ImageSource="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
-                                                                Stretch="UniformToFill" />
-                                                </Border.Background>
-                                            </Border>
-                                            <TextBlock Text="{x:Bind Title}" FontSize="12" FontWeight="SemiBold"
-                                                       TextTrimming="CharacterEllipsis" MaxLines="2" />
-                                            <TextBlock Text="{x:Bind ReleaseDate, Converter={StaticResource ReleaseDateToYearConverter}}"
-                                                       FontSize="11" Opacity="0.6" />
-                                        </StackPanel>
+                                        <Grid Width="170" Height="320" CornerRadius="8"
+                                              Background="Transparent"
+                                              PointerEntered="TmdbCard_PointerEntered"
+                                              PointerExited="TmdbCard_PointerExited">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="250" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.RenderTransform>
+                                                <CompositeTransform x:Name="TmdbCardTransform" CenterX="85" CenterY="160" />
+                                            </Grid.RenderTransform>
+
+                                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
+                                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                <Image Source="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
+                                                       Stretch="UniformToFill" />
+
+                                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
+                                                    <Grid.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.2" />
+                                                    </Grid.OpacityTransition>
+                                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
+                                                    <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
+                                                        <TextBlock Text="{x:Bind VoteAverage, Converter={StaticResource RatingToStarsConverter}}"
+                                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
+
+                                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
+                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                           FontSize="13" />
+                                                <TextBlock Text="{x:Bind ReleaseDate, Converter={StaticResource ReleaseDateToYearConverter}}"
+                                                           Opacity="0.6" FontSize="12" />
+                                            </StackPanel>
+                                        </Grid>
                                     </DataTemplate>
                                 </ItemsRepeater.ItemTemplate>
                             </ItemsRepeater>
@@ -180,30 +207,57 @@
                     <!-- Recommended -->
                     <StackPanel x:Name="RecommendedSection" Spacing="12" Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE734;" FontSize="18" />
-                            <TextBlock Text="Recommended" FontSize="18" FontWeight="SemiBold" />
+                            <FontIcon Glyph="&#xE734;" FontSize="22" />
+                            <TextBlock Text="Recommended" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
                         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Disabled"
-                                      HorizontalScrollMode="Enabled">
+                                      HorizontalScrollMode="Enabled"
+                                      Padding="4,8,4,8">
                             <ItemsRepeater ItemsSource="{x:Bind ViewModel.Recommendations, Mode=OneWay}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Orientation="Horizontal" Spacing="12" />
                                 </ItemsRepeater.Layout>
                                 <ItemsRepeater.ItemTemplate>
                                     <DataTemplate x:DataType="models:TmdbMovie">
-                                        <StackPanel Width="140" Spacing="6">
-                                            <Border CornerRadius="8" Width="140" Height="200">
-                                                <Border.Background>
-                                                    <ImageBrush ImageSource="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
-                                                                Stretch="UniformToFill" />
-                                                </Border.Background>
-                                            </Border>
-                                            <TextBlock Text="{x:Bind Title}" FontSize="12" FontWeight="SemiBold"
-                                                       TextTrimming="CharacterEllipsis" MaxLines="2" />
-                                            <TextBlock Text="{x:Bind ReleaseDate, Converter={StaticResource ReleaseDateToYearConverter}}"
-                                                       FontSize="11" Opacity="0.6" />
-                                        </StackPanel>
+                                        <Grid Width="170" Height="320" CornerRadius="8"
+                                              Background="Transparent"
+                                              PointerEntered="TmdbCard_PointerEntered"
+                                              PointerExited="TmdbCard_PointerExited">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="250" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.RenderTransform>
+                                                <CompositeTransform x:Name="TmdbCardTransform" CenterX="85" CenterY="160" />
+                                            </Grid.RenderTransform>
+
+                                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
+                                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                <Image Source="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
+                                                       Stretch="UniformToFill" />
+
+                                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
+                                                    <Grid.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.2" />
+                                                    </Grid.OpacityTransition>
+                                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
+                                                    <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
+                                                        <TextBlock Text="{x:Bind VoteAverage, Converter={StaticResource RatingToStarsConverter}}"
+                                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
+
+                                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
+                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                           FontSize="13" />
+                                                <TextBlock Text="{x:Bind ReleaseDate, Converter={StaticResource ReleaseDateToYearConverter}}"
+                                                           Opacity="0.6" FontSize="12" />
+                                            </StackPanel>
+                                        </Grid>
                                     </DataTemplate>
                                 </ItemsRepeater.ItemTemplate>
                             </ItemsRepeater>
@@ -217,8 +271,8 @@
                             BorderThickness="1">
                         <StackPanel Spacing="16">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8E5;" FontSize="18" />
-                                <TextBlock Text="File Information" FontSize="18" FontWeight="SemiBold" />
+                                <FontIcon Glyph="&#xE8E5;" FontSize="22" />
+                                <TextBlock Text="File Information" FontSize="22" FontWeight="Bold" />
                             </StackPanel>
 
                             <Grid ColumnSpacing="24">
