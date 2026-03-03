@@ -58,19 +58,28 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="8">
                         <TextBlock x:Name="TitleText" FontSize="60" FontWeight="Bold"
                                    TextWrapping="WrapWholeWords" />
-                        <StackPanel Orientation="Horizontal" Spacing="16" >
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE787;" FontSize="16" Opacity="0.7" />
-                                <TextBlock x:Name="YearText" Opacity="0.7" FontSize="16" FontWeight="SemiBold" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE823;" FontSize="16" Opacity="0.7" />
-                                <TextBlock x:Name="RuntimeText" Opacity="0.7" FontSize="16" FontWeight="SemiBold" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE735;" FontSize="16" Foreground="Gold" />
-                                <TextBlock x:Name="RatingText" Opacity="0.7" FontSize="16" FontWeight="SemiBold" />
-                            </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                    CornerRadius="6" Padding="10,5">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE787;" FontSize="14" Opacity="0.7" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="YearText" Opacity="0.7" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                    CornerRadius="6" Padding="10,5">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE823;" FontSize="14" Opacity="0.7" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="RuntimeText" Opacity="0.7" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                    CornerRadius="6" Padding="10,5">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE735;" FontSize="14" Foreground="Gold" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="RatingText" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
 
                         <!-- Genre Pills -->
@@ -98,7 +107,7 @@
                         <Button Style="{StaticResource AccentButtonStyle}"
                                 Click="Play_Click">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE768;" FontSize="16" />
+                                <FontIcon Glyph="&#xF5B0;" FontSize="16" />
                                 <TextBlock Text="Play Movie" />
                             </StackPanel>
                         </Button>
@@ -135,21 +144,23 @@
                     </StackPanel>
 
                     <!-- Overview -->
-                    <StackPanel Spacing="12" >
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE946;" FontSize="22" />
-                            <TextBlock Text="Overview" FontSize="22" FontWeight="Bold" />
-                        </StackPanel>
+                    <StackPanel Spacing="12">
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <TextBlock FontSize="22" FontWeight="Bold">
+                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE946;" FontSize="22" />
+                            <Run Text=" Overview" />
+                        </TextBlock>
                         <TextBlock x:Name="OverviewText" TextWrapping="WrapWholeWords"
                                    FontSize="14" LineHeight="22" Opacity="0.85" />
                     </StackPanel>
 
                     <!-- Similar Movies -->
                     <StackPanel x:Name="SimilarSection" Spacing="12" Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE7C5;" FontSize="22" />
-                            <TextBlock Text="Similar Movies" FontSize="22" FontWeight="Bold" />
-                        </StackPanel>
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <TextBlock FontSize="22" FontWeight="Bold">
+                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE7C5;" FontSize="22" />
+                            <Run Text=" Similar Movies" />
+                        </TextBlock>
                         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Disabled"
                                       HorizontalScrollMode="Enabled"
@@ -206,10 +217,11 @@
 
                     <!-- Recommended -->
                     <StackPanel x:Name="RecommendedSection" Spacing="12" Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE734;" FontSize="22" />
-                            <TextBlock Text="Recommended" FontSize="22" FontWeight="Bold" />
-                        </StackPanel>
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <TextBlock FontSize="22" FontWeight="Bold">
+                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE734;" FontSize="22" />
+                            <Run Text=" Recommended" />
+                        </TextBlock>
                         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Disabled"
                                       HorizontalScrollMode="Enabled"
@@ -265,15 +277,16 @@
                     </StackPanel>
 
                     <!-- File Information Card -->
+                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             CornerRadius="8" Padding="24"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1">
                         <StackPanel Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8E5;" FontSize="22" />
-                                <TextBlock Text="File Information" FontSize="22" FontWeight="Bold" />
-                            </StackPanel>
+                            <TextBlock FontSize="22" FontWeight="Bold">
+                                <Run FontFamily="Segoe MDL2 Assets" Text="&#xE8E5;" FontSize="22" />
+                                <Run Text=" File Information" />
+                            </TextBlock>
 
                             <Grid ColumnSpacing="24">
                                 <Grid.ColumnDefinitions>
