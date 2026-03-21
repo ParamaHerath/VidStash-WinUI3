@@ -135,7 +135,3 @@ VidStash/
 ## Attribution
 
 > This product uses the TMDB API but is not endorsed or certified by TMDB.
-
-## License
-
-This project is provided as-is for personal use.
