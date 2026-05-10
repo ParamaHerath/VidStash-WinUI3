@@ -194,9 +194,6 @@ public sealed partial class MovieDetailPage : Page
     {
         if (sender is not Grid grid) return;
 
-        // Bring element to the front
-        Canvas.SetZIndex(grid, 99);
-
         var overlay = FindChild<Grid>(grid, "HoverOverlay");
         if (overlay != null)
             overlay.Opacity = 1;
@@ -224,9 +221,6 @@ public sealed partial class MovieDetailPage : Page
     {
         if (sender is not Grid grid) return;
 
-        // Reset order
-        Canvas.SetZIndex(grid, 0);
-
         var overlay = FindChild<Grid>(grid, "HoverOverlay");
         if (overlay != null)
             overlay.Opacity = 0;
@@ -248,31 +242,6 @@ public sealed partial class MovieDetailPage : Page
             }
             sb.Begin();
         }
-    }
-
-    // Scroll Logic 
-    private void ScrollSimilarLeft_Click(object sender, RoutedEventArgs e)
-    {
-        var offset = SimilarScrollViewer.HorizontalOffset - 500;
-        SimilarScrollViewer.ChangeView(Math.Max(0, offset), null, null);
-    }
-
-    private void ScrollSimilarRight_Click(object sender, RoutedEventArgs e)
-    {
-        var offset = SimilarScrollViewer.HorizontalOffset + 500;
-        SimilarScrollViewer.ChangeView(Math.Min(SimilarScrollViewer.ScrollableWidth, offset), null, null);
-    }
-
-    private void ScrollRecommendedLeft_Click(object sender, RoutedEventArgs e)
-    {
-        var offset = RecommendedScrollViewer.HorizontalOffset - 500;
-        RecommendedScrollViewer.ChangeView(Math.Max(0, offset), null, null);
-    }
-
-    private void ScrollRecommendedRight_Click(object sender, RoutedEventArgs e)
-    {
-        var offset = RecommendedScrollViewer.HorizontalOffset + 500;
-        RecommendedScrollViewer.ChangeView(Math.Min(RecommendedScrollViewer.ScrollableWidth, offset), null, null);
     }
 
     private static T? FindChild<T>(DependencyObject parent, string name) where T : FrameworkElement

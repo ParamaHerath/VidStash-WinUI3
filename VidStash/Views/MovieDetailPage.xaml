@@ -161,7 +161,8 @@
                             <FontIcon Glyph="&#xE7C5;" FontSize="22" VerticalAlignment="Center" />
                             <TextBlock Text="Similar Movies" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
                         </StackPanel>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        <ScrollViewer x:Name="SimilarScrollViewer"
+                                      HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Disabled"
                                       HorizontalScrollMode="Enabled"
                                       Padding="8,12,8,24">
@@ -222,7 +223,8 @@
                             <FontIcon Glyph="&#xE734;" FontSize="22" VerticalAlignment="Center" />
                             <TextBlock Text="Recommended" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
                         </StackPanel>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        <ScrollViewer x:Name="RecommendedScrollViewer"
+                                      HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Disabled"
                                       HorizontalScrollMode="Enabled"
                                       Padding="8,12,8,24">
