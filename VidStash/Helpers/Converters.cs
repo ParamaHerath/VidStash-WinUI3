@@ -100,3 +100,16 @@ public class NullToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotImplementedException();
 }
+
+public class ReleaseDateToYearConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string date && date.Length >= 4)
+            return date[..4];
+        return "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotImplementedException();
+}

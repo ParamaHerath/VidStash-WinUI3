@@ -19,6 +19,9 @@ public partial class MovieDetailViewModel : ObservableObject
     private ObservableCollection<TmdbMovie> _recommendations = [];
 
     [ObservableProperty]
+    private ObservableCollection<TmdbMovie> _similarMovies = [];
+
+    [ObservableProperty]
     private List<string> _genres = [];
 
     [ObservableProperty]
@@ -45,8 +48,11 @@ public partial class MovieDetailViewModel : ObservableObject
 
             if (movie.TmdbId.HasValue)
             {
-                var recs = await _tmdb.GetRecommendationsAsync(movie.TmdbId.Value);
-                Recommendations = new ObservableCollection<TmdbMovie>(recs.Take(10));
+                var recsTask = _tmdb.GetRecommendationsAsync(movie.TmdbId.Value);
+                var similarTask = _tmdb.GetSimilarAsync(movie.TmdbId.Value);
+                await Task.WhenAll(recsTask, similarTask);
+                Recommendations = new ObservableCollection<TmdbMovie>(recsTask.Result.Take(10));
+                SimilarMovies = new ObservableCollection<TmdbMovie>(similarTask.Result.Take(10));
             }
         }
         finally
