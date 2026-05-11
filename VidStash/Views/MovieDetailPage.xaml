@@ -103,7 +103,7 @@
                 <StackPanel Grid.Row="1" Spacing="32" Padding="48,24,48,48">
 
                     <!-- Action Buttons -->
-                    <StackPanel Orientation="Horizontal" Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
                         <Button Style="{StaticResource AccentButtonStyle}"
                                 Click="Play_Click">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -145,10 +145,10 @@
 
                     <!-- Overview -->
                     <StackPanel Spacing="12">
-                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,0,0,20" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE946;" FontSize="22" VerticalAlignment="Center" />
-                            <TextBlock Text="Overview" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                            <TextBlock Text="Overview" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Margin="0,-2,0,0" />
                         </StackPanel>
                         <TextBlock x:Name="OverviewText" TextWrapping="WrapWholeWords"
                                    FontSize="14" LineHeight="22" Opacity="0.85" />
@@ -156,16 +156,24 @@
 
                     <!-- Similar Movies -->
                     <StackPanel x:Name="SimilarSection" Spacing="12" Visibility="Collapsed">
-                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE7C5;" FontSize="22" VerticalAlignment="Center" />
-                            <TextBlock Text="Similar Movies" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,0,0,16" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,-8">
+                            <FontIcon Glyph="&#xE8B2;" FontSize="22" VerticalAlignment="Center" />
+                            <TextBlock Text="Similar Movies" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Margin="0,-2,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" Margin="0,-24,8,0">
+                            <Button Click="SimilarScrollLeft_Click" Background="Transparent" BorderBrush="Transparent" Padding="8">
+                                <FontIcon Glyph="&#xE72B;" FontSize="14" />
+                            </Button>
+                            <Button Click="SimilarScrollRight_Click" Background="Transparent" BorderBrush="Transparent" Padding="8">
+                                <FontIcon Glyph="&#xF0D2;" FontSize="14" />
+                            </Button>
                         </StackPanel>
                         <ScrollViewer x:Name="SimilarScrollViewer"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Hidden"
                                       VerticalScrollBarVisibility="Disabled"
-                                      HorizontalScrollMode="Enabled"
-                                      Padding="8,12,8,24">
+                                      HorizontalScrollMode="Disabled"
+                                      Padding="8,0,8,8">
                             <ItemsRepeater ItemsSource="{x:Bind ViewModel.SimilarMovies, Mode=OneWay}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Orientation="Horizontal" Spacing="12" />
@@ -174,6 +182,7 @@
                                     <DataTemplate x:DataType="models:TmdbMovie">
                                         <Grid Width="170" Height="320" CornerRadius="8"
                                               Background="Transparent"
+                                              Margin="0,16,0,16"
                                               PointerEntered="TmdbCard_PointerEntered"
                                               PointerExited="TmdbCard_PointerExited">
                                             <Grid.RowDefinitions>
@@ -218,16 +227,24 @@
 
                     <!-- Recommended -->
                     <StackPanel x:Name="RecommendedSection" Spacing="12" Visibility="Collapsed">
-                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,0,0,16" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,-8">
                             <FontIcon Glyph="&#xE734;" FontSize="22" VerticalAlignment="Center" />
-                            <TextBlock Text="Recommended" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                            <TextBlock Text="Recommended" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Margin="0,-2,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" Margin="0,-24,8,0">
+                            <Button Click="RecommendedScrollLeft_Click" Background="Transparent" BorderBrush="Transparent" Padding="8">
+                                <FontIcon Glyph="&#xE72B;" FontSize="14" />
+                            </Button>
+                            <Button Click="RecommendedScrollRight_Click" Background="Transparent" BorderBrush="Transparent" Padding="8">
+                                <FontIcon Glyph="&#xF0D2;" FontSize="14" />
+                            </Button>
                         </StackPanel>
                         <ScrollViewer x:Name="RecommendedScrollViewer"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Hidden"
                                       VerticalScrollBarVisibility="Disabled"
-                                      HorizontalScrollMode="Enabled"
-                                      Padding="8,12,8,24">
+                                      HorizontalScrollMode="Disabled"
+                                      Padding="8,0,8,8">
                             <ItemsRepeater ItemsSource="{x:Bind ViewModel.Recommendations, Mode=OneWay}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Orientation="Horizontal" Spacing="12" />
@@ -236,6 +253,7 @@
                                     <DataTemplate x:DataType="models:TmdbMovie">
                                         <Grid Width="170" Height="320" CornerRadius="8"
                                               Background="Transparent"
+                                              Margin="0,8,0,8"
                                               PointerEntered="TmdbCard_PointerEntered"
                                               PointerExited="TmdbCard_PointerExited">
                                             <Grid.RowDefinitions>
@@ -279,15 +297,16 @@
                     </StackPanel>
 
                     <!-- File Information Card -->
-                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="24"
+                    <StackPanel Spacing="12">
+                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,0,0,16" />
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8" Padding="24" Margin="0,12,0,0"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1">
                         <StackPanel Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                                 <FontIcon Glyph="&#xE8E5;" FontSize="22" VerticalAlignment="Center" />
-                                <TextBlock Text="File Information" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                                <TextBlock Text="File Information" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Margin="0,-2,0,0" />
                             </StackPanel>
 
                             <Grid ColumnSpacing="24">
@@ -328,6 +347,7 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
+                    </StackPanel>
 
                 </StackPanel>
             </Grid>

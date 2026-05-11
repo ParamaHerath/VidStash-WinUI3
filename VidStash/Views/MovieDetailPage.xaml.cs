@@ -190,6 +190,30 @@ public sealed partial class MovieDetailPage : Page
         return template;
     }
 
+    private void SimilarScrollLeft_Click(object sender, RoutedEventArgs e)
+    {
+        var sv = SimilarScrollViewer;
+        sv.ChangeView(Math.Max(0, sv.HorizontalOffset - 360), null, null);
+    }
+
+    private void SimilarScrollRight_Click(object sender, RoutedEventArgs e)
+    {
+        var sv = SimilarScrollViewer;
+        sv.ChangeView(sv.HorizontalOffset + 360, null, null);
+    }
+
+    private void RecommendedScrollLeft_Click(object sender, RoutedEventArgs e)
+    {
+        var sv = RecommendedScrollViewer;
+        sv.ChangeView(Math.Max(0, sv.HorizontalOffset - 360), null, null);
+    }
+
+    private void RecommendedScrollRight_Click(object sender, RoutedEventArgs e)
+    {
+        var sv = RecommendedScrollViewer;
+        sv.ChangeView(sv.HorizontalOffset + 360, null, null);
+    }
+
     private void TmdbCard_PointerEntered(object sender, PointerRoutedEventArgs e)
     {
         if (sender is not Grid grid) return;
