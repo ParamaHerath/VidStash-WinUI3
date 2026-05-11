@@ -186,44 +186,58 @@
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="0">
-                                        <Grid ColumnSpacing="16">
+                                        <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="240" />
-                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- Thumbnail -->
+                                            <!-- Thumbnail with hover overlay -->
                                             <Border Grid.Column="0" CornerRadius="8,0,0,8"
                                                     Height="135" Width="240"
-                                                    Background="{ThemeResource ControlFillColorDefaultBrush}">
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                    PointerEntered="EpisodeCard_PointerEntered"
+                                                    PointerExited="EpisodeCard_PointerExited">
                                                 <Grid>
                                                     <Image Source="{x:Bind StillImage, Converter={StaticResource StillUrlConverter}}"
                                                            Stretch="UniformToFill" />
-                                                    <!-- Episode number badge -->
-                                                    <Border Background="#CC000000"
-                                                            CornerRadius="0,0,6,0"
-                                                            Padding="8,4"
-                                                            HorizontalAlignment="Left"
-                                                            VerticalAlignment="Top">
+                                                    <!-- Hover overlay with play button -->
+                                                    <Grid x:Name="EpisodeHoverOverlay" Opacity="0"
+                                                          Background="#88000000"
+                                                          CornerRadius="8,0,0,8">
+                                                        <Grid.OpacityTransition>
+                                                            <ScalarTransition Duration="0:0:0.2" />
+                                                        </Grid.OpacityTransition>
+                                                        <Button HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Style="{StaticResource AccentButtonStyle}"
+                                                                Width="48" Height="48"
+                                                                CornerRadius="24"
+                                                                Click="PlayEpisode_Click"
+                                                                Tag="{x:Bind}">
+                                                            <FontIcon Glyph="&#xF5B0;" FontSize="18" />
+                                                        </Button>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Episode info -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                                        Spacing="6" Padding="16,12">
+                                                <!-- Episode badge + title row -->
+                                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                    <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                            CornerRadius="4" Padding="7,3">
                                                         <TextBlock FontSize="11" FontWeight="Bold"
                                                                    Foreground="White">
                                                             <Run Text="E" /><Run Text="{x:Bind Episode}" />
                                                         </TextBlock>
                                                     </Border>
-                                                </Grid>
-                                            </Border>
-
-                                            <!-- Divider line -->
-                                            <Border Grid.Column="1" Width="1"
-                                                    Background="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                    VerticalAlignment="Stretch" />
-
-                                            <!-- Episode info -->
-                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="6" Padding="0,12">
-                                                <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" FontSize="15"
-                                                           TextTrimming="CharacterEllipsis" MaxLines="1" />
+                                                    <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" FontSize="15"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="1"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                                <!-- Air date + runtime -->
                                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                                     <StackPanel Orientation="Horizontal" Spacing="4">
                                                         <FontIcon Glyph="&#xE787;" FontSize="12" Opacity="0.6" VerticalAlignment="Center" />
@@ -236,21 +250,11 @@
                                                                    Opacity="0.6" FontSize="12" VerticalAlignment="Center" />
                                                     </StackPanel>
                                                 </StackPanel>
+                                                <!-- Overview -->
                                                 <TextBlock Text="{x:Bind Overview}" Opacity="0.7" FontSize="13"
                                                            TextTrimming="CharacterEllipsis" MaxLines="2"
                                                            LineHeight="20" TextWrapping="WrapWholeWords" />
                                             </StackPanel>
-
-                                            <!-- Play Button -->
-                                            <Button Grid.Column="3"
-                                                    VerticalAlignment="Center"
-                                                    HorizontalAlignment="Center"
-                                                    Margin="12,0"
-                                                    Style="{StaticResource AccentButtonStyle}"
-                                                    Click="PlayEpisode_Click"
-                                                    Tag="{x:Bind}">
-                                                <FontIcon Glyph="&#xF5B0;" FontSize="16" />
-                                            </Button>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

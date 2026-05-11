@@ -148,6 +148,22 @@ public sealed partial class SeriesDetailPage : Page
         RecommendedScrollViewer.ChangeView(RecommendedScrollViewer.HorizontalOffset + 360, null, null);
     }
 
+    // ----- Episode card hover -----
+
+    private void EpisodeCard_PointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement el) return;
+        var overlay = FindChild<Grid>(el, "EpisodeHoverOverlay");
+        if (overlay != null) overlay.Opacity = 1;
+    }
+
+    private void EpisodeCard_PointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement el) return;
+        var overlay = FindChild<Grid>(el, "EpisodeHoverOverlay");
+        if (overlay != null) overlay.Opacity = 0;
+    }
+
     // ----- Card hover animations -----
 
     private void TmdbCard_PointerEntered(object sender, PointerRoutedEventArgs e)
