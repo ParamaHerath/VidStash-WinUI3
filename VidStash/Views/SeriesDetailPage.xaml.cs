@@ -108,6 +108,11 @@ public sealed partial class SeriesDetailPage : Page
         UpdateUI();
     }
 
+    private async void ManualSearch_Click(object sender, RoutedEventArgs e)
+    {
+        // Parse/Manual Search functionality will be added later
+    }
+
     private async void OpenInExplorer_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.Series?.Folder == null) return;
