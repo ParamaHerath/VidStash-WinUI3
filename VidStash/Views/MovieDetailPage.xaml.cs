@@ -100,60 +100,18 @@ public sealed partial class MovieDetailPage : Page
 
     private async void ManualSearch_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new ContentDialog
+        var dialog = new Dialogs.ParseSearchDialog
         {
-            Title = "Manual TMDB Search",
-            PrimaryButtonText = "Search",
-            CloseButtonText = "Cancel",
             XamlRoot = XamlRoot,
-            DefaultButton = ContentDialogButton.Primary
+            InitialQuery = ViewModel.Movie?.Title ?? "",
+            LockedMediaType = VidStash.Models.MediaType.Movie
         };
-
-        var searchBox = new TextBox
-        {
-            PlaceholderText = "Enter movie title...",
-            Text = ViewModel.Movie?.Title ?? ""
-        };
-        dialog.Content = searchBox;
 
         var result = await dialog.ShowAsync();
-        if (result == ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(searchBox.Text))
+        if (result == ContentDialogResult.Primary && dialog.SelectedResult?.Movie is { } movie)
         {
-            var tmdb = App.GetService<TmdbService>();
-            var results = await tmdb.SearchMovieAsync(searchBox.Text);
-
-            if (results.Count > 0)
-            {
-                var selectDialog = new ContentDialog
-                {
-                    Title = "Select Match",
-                    CloseButtonText = "Cancel",
-                    XamlRoot = XamlRoot
-                };
-
-                var list = new ListView
-                {
-                    ItemsSource = results.Take(10),
-                    MaxHeight = 400
-                };
-                list.ItemTemplate = (DataTemplate)Resources["MovieSearchResultTemplate"]
-                    ?? CreateSearchResultTemplate();
-
-                selectDialog.Content = list;
-
-                list.ItemClick += async (s, args) =>
-                {
-                    if (args.ClickedItem is TmdbMovie match)
-                    {
-                        await ViewModel.ApplyManualMatchAsync(match);
-                        UpdateUI();
-                        selectDialog.Hide();
-                    }
-                };
-                list.IsItemClickEnabled = true;
-
-                await selectDialog.ShowAsync();
-            }
+            await ViewModel.ApplyManualMatchAsync(movie);
+            UpdateUI();
         }
     }
 
@@ -179,16 +137,7 @@ public sealed partial class MovieDetailPage : Page
         await Windows.System.Launcher.LaunchUriAsync(new Uri($"https://www.google.com/search?q={query}"));
     }
 
-    private static DataTemplate CreateSearchResultTemplate()
-    {
-        // Fallback simple template
-        var template = (DataTemplate)Microsoft.UI.Xaml.Markup.XamlReader.Load(
-            @"<DataTemplate xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
-                           xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
-                <TextBlock Text=""{Binding Title}"" Margin=""8"" />
-            </DataTemplate>");
-        return template;
-    }
+
 
     private void SimilarScrollLeft_Click(object sender, RoutedEventArgs e)
     {

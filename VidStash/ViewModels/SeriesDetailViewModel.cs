@@ -145,4 +145,27 @@ public partial class SeriesDetailViewModel : ObservableObject
             IsLoading = false;
         }
     }
+
+    public async Task ApplyManualMatchAsync(TmdbTv match)
+    {
+        if (Series == null) return;
+
+        var details = await _tmdb.GetTvDetailsAsync(match.Id) ?? match;
+        Series.TmdbId = details.Id;
+        Series.Title = details.Name;
+        Series.Overview = details.Overview;
+        Series.Poster = details.PosterPath;
+        Series.Backdrop = details.BackdropPath;
+        Series.Rating = details.VoteAverage;
+        Series.Status = details.Status;
+        Series.TotalSeasons = details.NumberOfSeasons;
+        Series.TotalEpisodes = details.NumberOfEpisodes;
+        if (!string.IsNullOrEmpty(details.FirstAirDate) && details.FirstAirDate.Length >= 4)
+            Series.Year = details.FirstAirDate[..4];
+        if (details.Genres != null)
+            Series.Genres = JsonSerializer.Serialize(details.Genres.Select(g => g.Name).ToList());
+
+        await _db.UpdateSeriesAsync(Series);
+        await LoadAsync(Series);
+    }
 }
