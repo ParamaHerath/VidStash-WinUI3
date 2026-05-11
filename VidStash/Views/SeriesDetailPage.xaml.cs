@@ -110,7 +110,19 @@ public sealed partial class SeriesDetailPage : Page
 
     private async void ManualSearch_Click(object sender, RoutedEventArgs e)
     {
-        // Parse/Manual Search functionality will be added later
+        var dialog = new Dialogs.ParseSearchDialog
+        {
+            XamlRoot = XamlRoot,
+            InitialQuery = ViewModel.Series?.Title ?? "",
+            LockedMediaType = VidStash.Models.MediaType.TvEpisode
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary && dialog.SelectedResult?.TvShow is { } tvShow)
+        {
+            await ViewModel.ApplyManualMatchAsync(tvShow);
+            UpdateUI();
+        }
     }
 
     private async void OpenInExplorer_Click(object sender, RoutedEventArgs e)
