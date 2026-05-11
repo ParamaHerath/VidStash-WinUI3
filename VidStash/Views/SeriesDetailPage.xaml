@@ -126,6 +126,12 @@
                                 <TextBlock Text="Refresh Metadata" />
                             </StackPanel>
                         </Button>
+                        <Button Click="ManualSearch_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE721;" FontSize="16" />
+                                <TextBlock Text="Parse" />
+                            </StackPanel>
+                        </Button>
                         <Button Click="OpenInExplorer_Click">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE838;" FontSize="16" />
@@ -171,7 +177,10 @@
                                   ItemsSource="{x:Bind ViewModel.Episodes, Mode=OneWay}"
                                   SelectionMode="None"
                                   IsItemClickEnabled="True"
-                                  ItemClick="Episode_Click">
+                                  ItemClick="Episode_Click"
+                                  MaxHeight="540"
+                                  ScrollViewer.VerticalScrollMode="Enabled"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -181,7 +190,7 @@
                             </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="models:TvEpisode">
-                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
@@ -226,14 +235,15 @@
                                                         Spacing="6" Padding="16,12">
                                                 <!-- Episode badge + title row -->
                                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                                    <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                            CornerRadius="4" Padding="7,3">
-                                                        <TextBlock FontSize="11" FontWeight="Bold"
-                                                                   Foreground="White">
-                                                            <Run Text="E" /><Run Text="{x:Bind Episode}" />
-                                                        </TextBlock>
-                                                    </Border>
-                                                    <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" FontSize="15"
+													<Border Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="4" Padding="6,1">
+														<TextBlock FontSize="12"
+																   FontWeight="Bold"
+																   Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+															<Run Text="E" />
+															<Run Text="{x:Bind Episode}" />
+														</TextBlock>
+													</Border>
+                                                    <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" FontSize="14"
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"
                                                                VerticalAlignment="Center" />
                                                 </StackPanel>
