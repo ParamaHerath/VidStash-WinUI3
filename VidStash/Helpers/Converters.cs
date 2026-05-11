@@ -113,3 +113,36 @@ public class ReleaseDateToYearConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotImplementedException();
 }
+
+public class StillUrlConverter : IValueConverter
+{
+    public object? Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string path && !string.IsNullOrEmpty(path))
+        {
+            var url = TmdbService.GetStillUrl(path, "w300");
+            return new BitmapImage(new Uri(url));
+        }
+        return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotImplementedException();
+}
+
+public class RuntimeConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is int mins && mins > 0)
+        {
+            var h = mins / 60;
+            var m = mins % 60;
+            return h > 0 ? $"{h}h {m}m" : $"{m}m";
+        }
+        return "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotImplementedException();
+}

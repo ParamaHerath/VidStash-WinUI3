@@ -28,6 +28,12 @@ public partial class SeriesDetailViewModel : ObservableObject
     private List<string> _genres = [];
 
     [ObservableProperty]
+    private ObservableCollection<TmdbTv> _similarShows = [];
+
+    [ObservableProperty]
+    private ObservableCollection<TmdbTv> _recommendations = [];
+
+    [ObservableProperty]
     private bool _isLoading;
 
     public SeriesDetailViewModel(DatabaseService db, TmdbService tmdb)
@@ -53,11 +59,18 @@ public partial class SeriesDetailViewModel : ObservableObject
             Seasons = allEpisodes.Select(e => e.Season).Distinct().OrderBy(s => s).ToList();
 
             if (Seasons.Count > 0)
-            {
                 SelectedSeason = Seasons[0];
-            }
 
             await LoadEpisodesForSeasonAsync();
+
+            if (series.TmdbId.HasValue)
+            {
+                var recsTask = _tmdb.GetTvRecommendationsAsync(series.TmdbId.Value);
+                var similarTask = _tmdb.GetTvSimilarAsync(series.TmdbId.Value);
+                await Task.WhenAll(recsTask, similarTask);
+                Recommendations = new ObservableCollection<TmdbTv>(recsTask.Result.Take(10));
+                SimilarShows = new ObservableCollection<TmdbTv>(similarTask.Result.Take(10));
+            }
         }
         finally
         {
