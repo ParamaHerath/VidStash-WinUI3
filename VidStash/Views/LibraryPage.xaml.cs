@@ -345,6 +345,11 @@ public sealed partial class LibraryPage : Page
 
     private async void ToggleWatchedMovie_Click(object sender, RoutedEventArgs e)
     {
+        if (sender is FrameworkElement element && element.Name == "UnwatchedBadgeButton")
+        {
+            element.Visibility = Visibility.Collapsed;
+        }
+
         if (GetMovieFromContext(sender) is Movie movie)
             await ViewModel.ToggleWatchedMovieCommand.ExecuteAsync(movie);
     }
@@ -373,6 +378,11 @@ public sealed partial class LibraryPage : Page
 
     private async void ToggleWatchedSeries_Click(object sender, RoutedEventArgs e)
     {
+        if (sender is FrameworkElement element && element.Name == "UnwatchedBadgeButton")
+        {
+            element.Visibility = Visibility.Collapsed;
+        }
+
         if (GetSeriesFromContext(sender) is TvSeries series)
             await ViewModel.ToggleWatchedSeriesCommand.ExecuteAsync(series);
     }
