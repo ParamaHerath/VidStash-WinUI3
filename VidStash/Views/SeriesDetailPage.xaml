@@ -178,7 +178,7 @@
                                   SelectionMode="None"
                                   IsItemClickEnabled="True"
                                   ItemClick="Episode_Click"
-                                  MaxHeight="540"
+                                  MaxHeight="600"
                                   ScrollViewer.VerticalScrollMode="Enabled"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <ListView.ItemContainerStyle>
@@ -193,7 +193,7 @@
                                     <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1"
-                                            CornerRadius="8"
+                                            CornerRadius="6"
                                             Padding="0">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -202,7 +202,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Thumbnail with hover overlay -->
-                                            <Border Grid.Column="0" CornerRadius="8,0,0,8"
+                                            <Border Grid.Column="0" CornerRadius="6,0,0,6"
                                                     Height="135" Width="240"
                                                     Background="{ThemeResource ControlFillColorDefaultBrush}"
                                                     PointerEntered="EpisodeCard_PointerEntered"
@@ -213,7 +213,7 @@
                                                     <!-- Hover overlay with play button -->
                                                     <Grid x:Name="EpisodeHoverOverlay" Opacity="0"
                                                           Background="#88000000"
-                                                          CornerRadius="8,0,0,8">
+                                                          CornerRadius="6,0,0,6">
                                                         <Grid.OpacityTransition>
                                                             <ScalarTransition Duration="0:0:0.2" />
                                                         </Grid.OpacityTransition>
@@ -298,43 +298,43 @@
                                 </ItemsRepeater.Layout>
                                 <ItemsRepeater.ItemTemplate>
                                     <DataTemplate x:DataType="models:TmdbTv">
-                                        <Grid Width="170" Height="320" CornerRadius="8"
-                                              Background="Transparent"
+                                        <Grid Width="160" Height="240" CornerRadius="6"
+                                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                               Margin="0,8,0,8"
                                               PointerEntered="TmdbCard_PointerEntered"
                                               PointerExited="TmdbCard_PointerExited">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="250" />
-                                                <RowDefinition Height="*" />
-                                            </Grid.RowDefinitions>
                                             <Grid.RenderTransform>
-                                                <CompositeTransform x:Name="TmdbCardTransform" CenterX="85" CenterY="160" />
+                                                <CompositeTransform x:Name="TmdbCardTransform" CenterX="80" CenterY="120" />
                                             </Grid.RenderTransform>
 
-                                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
-                                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                                <Image Source="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
-                                                       Stretch="UniformToFill" />
-                                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
-                                                    <Grid.OpacityTransition>
-                                                        <ScalarTransition Duration="0:0:0.2" />
-                                                    </Grid.OpacityTransition>
-                                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
-                                                    <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
-                                                        <TextBlock Text="{x:Bind VoteAverage, Converter={StaticResource RatingToStarsConverter}}"
-                                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Grid>
+                                            <Image Source="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
+                                                   Stretch="UniformToFill" />
 
-                                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
-                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"
-                                                           TextTrimming="CharacterEllipsis" MaxLines="2"
-                                                           FontSize="13" />
-                                                <TextBlock Text="{x:Bind FirstAirDate, Converter={StaticResource ReleaseDateToYearConverter}}"
-                                                           Opacity="0.6" FontSize="12" />
-                                            </StackPanel>
+                                            <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="6">
+                                                <Grid.OpacityTransition>
+                                                    <ScalarTransition Duration="0:0:0.2" />
+                                                </Grid.OpacityTransition>
+                                                <Border Background="Black" Opacity="0.25" CornerRadius="6" />
+                                                <FontIcon Glyph="&#xF5B0;" FontSize="22" Foreground="White"
+                                                          HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                <Border VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Padding="9,7">
+                                                    <Border.Background>
+                                                        <AcrylicBrush TintColor="Black" TintOpacity="0.6" />
+                                                    </Border.Background>
+                                                    <StackPanel Spacing="1">
+                                                        <TextBlock Text="{x:Bind Name}"
+                                                                   Foreground="White" FontSize="12" FontWeight="SemiBold"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                                   TextWrapping="WrapWholeWords" />
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <TextBlock Text="{x:Bind FirstAirDate, Converter={StaticResource ReleaseDateToYearConverter}}"
+                                                                       Foreground="White" FontSize="11" Opacity="0.75" />
+                                                            <TextBlock Text="{x:Bind VoteAverage, Converter={StaticResource RatingToStarsConverter}}"
+                                                                       Foreground="White" FontSize="11" Opacity="0.9" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsRepeater.ItemTemplate>
@@ -368,43 +368,43 @@
                                 </ItemsRepeater.Layout>
                                 <ItemsRepeater.ItemTemplate>
                                     <DataTemplate x:DataType="models:TmdbTv">
-                                        <Grid Width="170" Height="320" CornerRadius="8"
-                                              Background="Transparent"
+                                        <Grid Width="160" Height="240" CornerRadius="6"
+                                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                               Margin="0,8,0,8"
                                               PointerEntered="TmdbCard_PointerEntered"
                                               PointerExited="TmdbCard_PointerExited">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="250" />
-                                                <RowDefinition Height="*" />
-                                            </Grid.RowDefinitions>
                                             <Grid.RenderTransform>
-                                                <CompositeTransform x:Name="TmdbCardTransform" CenterX="85" CenterY="160" />
+                                                <CompositeTransform x:Name="TmdbCardTransform" CenterX="80" CenterY="120" />
                                             </Grid.RenderTransform>
 
-                                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
-                                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                                <Image Source="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
-                                                       Stretch="UniformToFill" />
-                                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
-                                                    <Grid.OpacityTransition>
-                                                        <ScalarTransition Duration="0:0:0.2" />
-                                                    </Grid.OpacityTransition>
-                                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
-                                                    <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
-                                                        <TextBlock Text="{x:Bind VoteAverage, Converter={StaticResource RatingToStarsConverter}}"
-                                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Grid>
+                                            <Image Source="{x:Bind PosterPath, Converter={StaticResource PosterUrlConverter}}"
+                                                   Stretch="UniformToFill" />
 
-                                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
-                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"
-                                                           TextTrimming="CharacterEllipsis" MaxLines="2"
-                                                           FontSize="13" />
-                                                <TextBlock Text="{x:Bind FirstAirDate, Converter={StaticResource ReleaseDateToYearConverter}}"
-                                                           Opacity="0.6" FontSize="12" />
-                                            </StackPanel>
+                                            <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="6">
+                                                <Grid.OpacityTransition>
+                                                    <ScalarTransition Duration="0:0:0.2" />
+                                                </Grid.OpacityTransition>
+                                                <Border Background="Black" Opacity="0.25" CornerRadius="6" />
+                                                <FontIcon Glyph="&#xF5B0;" FontSize="22" Foreground="White"
+                                                          HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                <Border VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Padding="9,7">
+                                                    <Border.Background>
+                                                        <AcrylicBrush TintColor="Black" TintOpacity="0.7" />
+                                                    </Border.Background>
+                                                    <StackPanel Spacing="1">
+                                                        <TextBlock Text="{x:Bind Name}"
+                                                                   Foreground="White" FontSize="12" FontWeight="SemiBold"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                                   TextWrapping="WrapWholeWords" />
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <TextBlock Text="{x:Bind FirstAirDate, Converter={StaticResource ReleaseDateToYearConverter}}"
+                                                                       Foreground="White" FontSize="11" Opacity="0.75" />
+                                                            <TextBlock Text="{x:Bind VoteAverage, Converter={StaticResource RatingToStarsConverter}}"
+                                                                       Foreground="White" FontSize="11" Opacity="0.9" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsRepeater.ItemTemplate>

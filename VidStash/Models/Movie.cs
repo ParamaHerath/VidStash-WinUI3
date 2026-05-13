@@ -1,10 +1,12 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 
 namespace VidStash.Models;
 
 [Table("Movies")]
-public class Movie
+public class Movie : INotifyPropertyChanged
 {
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -24,5 +26,25 @@ public class Movie
     public string? AddedAt { get; set; }
     public string? LastPlayed { get; set; }
     public int PlayCount { get; set; }
-    public bool Watched { get; set; }
+
+    private bool _watched;
+    public bool Watched
+    {
+        get => _watched;
+        set
+        {
+            if (_watched != value)
+            {
+                _watched = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

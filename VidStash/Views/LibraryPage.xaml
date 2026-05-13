@@ -140,31 +140,30 @@
                         IsItemClickEnabled="True"
                         ItemClick="MoviesGrid_ItemClick"
                         SelectionMode="None"
+                        SizeChanged="MoviesGrid_SizeChanged"
                         ItemContainerStyle="{StaticResource NoHoverGridViewItemStyle}">
 
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsWrapGrid Orientation="Horizontal"
                                        ItemWidth="190"
-                                       ItemHeight="340"
+                                       ItemHeight="275"
                                        MaximumRowsOrColumns="10" />
                     </ItemsPanelTemplate>
                 </GridView.ItemsPanel>
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:Movie">
-                        <Grid Width="170" Height="320" CornerRadius="8"
-                              Background="Transparent"
+                        <Grid CornerRadius="6"
+                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              Margin="10"
+                              RenderTransformOrigin="0.5,0.5"
                               PointerEntered="PosterCard_PointerEntered"
                               PointerExited="PosterCard_PointerExited"
                               RightTapped="MovieCard_RightTapped">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="250" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
 
                             <Grid.RenderTransform>
-                                <CompositeTransform x:Name="MovieCardTransform" CenterX="85" CenterY="160" />
+                                <CompositeTransform />
                             </Grid.RenderTransform>
 
                             <Grid.ContextFlyout>
@@ -179,75 +178,95 @@
                                 </MenuFlyout>
                             </Grid.ContextFlyout>
 
-                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
-                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
-                                       Stretch="UniformToFill" />
+                            <!-- Poster fills full card -->
+                            <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
+                                   Stretch="UniformToFill" />
 
-                                <!-- Watched badge -->
-                                <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Background="{ThemeResource SystemAccentColor}"
-                                        CornerRadius="12"
-                                        Width="24" Height="24"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Margin="0,8,8,0">
-                                    <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White" />
-                                </Border>
+                            <!-- Hover overlay: play button + blurred info strip -->
+                            <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="6">
+                                <Grid.OpacityTransition>
+                                    <ScalarTransition Duration="0:0:0.2" />
+                                </Grid.OpacityTransition>
 
-                                <!-- Hover overlay with play button -->
-                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
-                                    <Grid.OpacityTransition>
-                                        <ScalarTransition Duration="0:0:0.2" />
-                                    </Grid.OpacityTransition>
+                                <!-- Subtle dark scrim -->
+                                <Border Background="Black" Opacity="0.25" CornerRadius="6" />
 
-                                    <!-- Dark overlay for emphasis -->
-                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
+                                <!-- Play button -->
+                                <Button x:Name="PlayButton"
+                                        Width="56" Height="56"
+                                        CornerRadius="28"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Visibility="Collapsed"
+                                        Click="PlayMovie_Click"
+                                        BorderThickness="0"
+                                        Padding="0">
+                                    <Button.Background>
+                                        <AcrylicBrush TintColor="White" TintOpacity="0.15" />
+                                    </Button.Background>
+                                    <Button.Resources>
+                                        <AcrylicBrush x:Key="ButtonBackgroundPointerOver" TintColor="White" TintOpacity="0.3" />
+                                        <AcrylicBrush x:Key="ButtonBackgroundPressed" TintColor="White" TintOpacity="0.4" />
+                                    </Button.Resources>
+                                    <FontIcon Glyph="&#xF5B0;" FontSize="22" Foreground="White" />
+                                </Button>
 
-                                    <!-- Play button -->
-                                    <Button x:Name="PlayButton"
-                                            Width="64" Height="64"
-                                            CornerRadius="32"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Visibility="Collapsed"
-                                            Click="PlayMovie_Click"
-                                            BorderThickness="0"
-                                            Padding="0">
-                                        <Button.Background>
-                                            <AcrylicBrush TintColor="White" TintOpacity="0.1" />
-                                        </Button.Background>
-                                        <Button.BackgroundSizing>
-                                            <BackgroundSizing>InnerBorderEdge</BackgroundSizing>
-                                        </Button.BackgroundSizing>
-                                        <Button.Resources>
-                                            <AcrylicBrush x:Key="ButtonBackgroundPointerOver" TintColor="White" TintOpacity="0.3" />
-                                            <AcrylicBrush x:Key="ButtonBackgroundPressed" TintColor="White" TintOpacity="0.4" />
-                                        </Button.Resources>
-                                        <Grid>
-                                            <Grid.Shadow>
-                                                <ThemeShadow />
-                                            </Grid.Shadow>
-                                            <FontIcon Glyph="&#xF5B0;" FontSize="24" Foreground="White" />
-                                        </Grid>
-                                    </Button>
-
-                                    <!-- Rating at bottom -->
-                                    <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
-                                        <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
-                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                                <!-- Bottom info strip (blurred dark panel) -->
+                                <Border VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Padding="10,8">
+                                    <Border.Background>
+                                        <AcrylicBrush TintColor="Black" TintOpacity="0.6" />
+                                    </Border.Background>
+                                    <StackPanel Spacing="1">
+                                        <TextBlock Text="{x:Bind Title, Mode=OneWay}"
+                                                   Foreground="White" FontSize="12" FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                   TextWrapping="WrapWholeWords" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind Year, Mode=OneWay}"
+                                                       Foreground="White" FontSize="11" Opacity="0.75" />
+                                            <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
+                                                       Foreground="White" FontSize="11" Opacity="0.9" />
+                                        </StackPanel>
                                     </StackPanel>
-                                </Grid>
+                                </Border>
                             </Grid>
 
-                            <!-- Info -->
-                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
-                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold"
-                                           TextTrimming="CharacterEllipsis" MaxLines="2"
-                                           FontSize="13" />
-                                <TextBlock Text="{x:Bind Year, Mode=OneWay}" Opacity="0.6" FontSize="12" />
-                            </StackPanel>
+                            <!-- Watched badge button (Green) -->
+                            <Button Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Click="ToggleWatchedMovie_Click"
+                                    Background="#22C55E"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#16A34A" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#15803D" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
+
+                            <!-- Unwatched badge button (Gray) -->
+                            <Button x:Name="UnwatchedBadgeButton"
+                                    Visibility="Collapsed"
+                                    Click="ToggleWatchedMovie_Click"
+                                    Background="#71717A"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#52525B" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#3F3F46" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
@@ -272,63 +291,30 @@
                 IsItemClickEnabled="True"
                 ItemClick="SeriesGrid_ItemClick"
                 SelectionMode="None"
+                SizeChanged="SeriesGrid_SizeChanged"
                 ItemContainerStyle="{StaticResource NoHoverGridViewItemStyle}">
 
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsWrapGrid Orientation="Horizontal"
                                        ItemWidth="190"
-                                       ItemHeight="340"
+                                       ItemHeight="275"
                                        MaximumRowsOrColumns="10" />
                     </ItemsPanelTemplate>
                 </GridView.ItemsPanel>
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:TvSeries">
-                        <Grid Width="170" Height="320" CornerRadius="8"
-                              Background="Transparent"
+                        <Grid CornerRadius="6"
+                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                              Margin="10"
+                              RenderTransformOrigin="0.5,0.5"
                               PointerEntered="PosterCard_PointerEntered"
                               PointerExited="PosterCard_PointerExited"
                               RightTapped="SeriesCard_RightTapped">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="250" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
                             <Grid.RenderTransform>
-                                <CompositeTransform x:Name="SeriesCardTransform" CenterX="85" CenterY="160" />
+                                <CompositeTransform />
                             </Grid.RenderTransform>
-
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="HoverStates">
-                                    <VisualState x:Name="Normal">
-                                        <VisualState.Setters>
-                                            <Setter Target="SeriesCardTransform.ScaleX" Value="1.0" />
-                                            <Setter Target="SeriesCardTransform.ScaleY" Value="1.0" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                    <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="SeriesCardTransform"
-                                                           Storyboard.TargetProperty="ScaleX"
-                                                           To="1.05"
-                                                           Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut" />
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation Storyboard.TargetName="SeriesCardTransform"
-                                                           Storyboard.TargetProperty="ScaleY"
-                                                           To="1.05"
-                                                           Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut" />
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
 
                             <Grid.ContextFlyout>
                                 <MenuFlyout>
@@ -342,73 +328,95 @@
                                 </MenuFlyout>
                             </Grid.ContextFlyout>
 
-                            <Grid Grid.Row="0" CornerRadius="8,8,0,0"
-                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
-                                       Stretch="UniformToFill" />
+                            <!-- Poster fills full card -->
+                            <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
+                                   Stretch="UniformToFill" />
 
-                                <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Background="{ThemeResource SystemAccentColor}"
-                                        CornerRadius="12"
-                                        Width="24" Height="24"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Margin="0,8,8,0">
-                                    <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White" />
-                                </Border>
+                            <!-- Hover overlay: play button + blurred info strip -->
+                            <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="6">
+                                <Grid.OpacityTransition>
+                                    <ScalarTransition Duration="0:0:0.2" />
+                                </Grid.OpacityTransition>
 
-                                <!-- Hover overlay with play button -->
-                                <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="8,8,0,0">
-                                    <Grid.OpacityTransition>
-                                        <ScalarTransition Duration="0:0:0.2" />
-                                    </Grid.OpacityTransition>
+                                <!-- Subtle dark scrim -->
+                                <Border Background="Black" Opacity="0.25" CornerRadius="6" />
 
-                                    <!-- Dark overlay for emphasis -->
-                                    <Border Background="Black" Opacity="0.3" CornerRadius="8,8,0,0" />
+                                <!-- Play button -->
+                                <Button x:Name="PlayButton"
+                                        Width="56" Height="56"
+                                        CornerRadius="28"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Visibility="Collapsed"
+                                        Click="PlaySeries_Click"
+                                        BorderThickness="0"
+                                        Padding="0">
+                                    <Button.Background>
+                                        <AcrylicBrush TintColor="White" TintOpacity="0.15" />
+                                    </Button.Background>
+                                    <Button.Resources>
+                                        <AcrylicBrush x:Key="ButtonBackgroundPointerOver" TintColor="White" TintOpacity="0.3" />
+                                        <AcrylicBrush x:Key="ButtonBackgroundPressed" TintColor="White" TintOpacity="0.4" />
+                                    </Button.Resources>
+                                    <FontIcon Glyph="&#xF5B0;" FontSize="22" Foreground="White" />
+                                </Button>
 
-                                    <!-- Play button (navigates to episodes) -->
-                                    <Button x:Name="PlayButton"
-                                            Width="64" Height="64"
-                                            CornerRadius="32"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Visibility="Collapsed"
-                                            Click="PlaySeries_Click"
-                                            BorderThickness="0"
-                                            Padding="0">
-                                        <Button.Background>
-                                            <AcrylicBrush TintColor="White" TintOpacity="0.3" />
-                                        </Button.Background>
-                                        <Button.BackgroundSizing>
-                                            <BackgroundSizing>InnerBorderEdge</BackgroundSizing>
-                                        </Button.BackgroundSizing>
-                                        <Button.Resources>
-                                            <AcrylicBrush x:Key="ButtonBackgroundPointerOver" TintColor="White" TintOpacity="0.4" />
-                                            <AcrylicBrush x:Key="ButtonBackgroundPressed" TintColor="White" TintOpacity="0.5" />
-                                        </Button.Resources>
-                                        <Grid>
-                                            <Grid.Shadow>
-                                                <ThemeShadow />
-                                            </Grid.Shadow>
-                                            <FontIcon Glyph="&#xF5B0;" FontSize="24" Foreground="White" />
-                                        </Grid>
-                                    </Button>
-
-                                    <!-- Rating at bottom -->
-                                    <StackPanel VerticalAlignment="Bottom" Padding="12" Spacing="4">
-                                        <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
-                                                   Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                                <!-- Bottom info strip (blurred dark panel) -->
+                                <Border VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Padding="10,8">
+                                    <Border.Background>
+                                        <AcrylicBrush TintColor="Black" TintOpacity="0.6" />
+                                    </Border.Background>
+                                    <StackPanel Spacing="1">
+                                        <TextBlock Text="{x:Bind Title, Mode=OneWay}"
+                                                   Foreground="White" FontSize="12" FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                   TextWrapping="WrapWholeWords" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind Year, Mode=OneWay}"
+                                                       Foreground="White" FontSize="11" Opacity="0.75" />
+                                            <TextBlock Text="{x:Bind Rating, Mode=OneWay, Converter={StaticResource RatingToStarsConverter}}"
+                                                       Foreground="White" FontSize="11" Opacity="0.9" />
+                                        </StackPanel>
                                     </StackPanel>
-                                </Grid>
+                                </Border>
                             </Grid>
 
-                            <StackPanel Grid.Row="1" Padding="8,6" Spacing="2"
-                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold"
-                                           TextTrimming="CharacterEllipsis" MaxLines="2"
-                                           FontSize="13" />
-                                <TextBlock Text="{x:Bind Year, Mode=OneWay}" Opacity="0.6" FontSize="12" />
-                            </StackPanel>
+                            <!-- Watched badge button (Green) -->
+                            <Button Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Click="ToggleWatchedSeries_Click"
+                                    Background="#22C55E"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#16A34A" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#15803D" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
+
+                            <!-- Unwatched badge button (Gray) -->
+                            <Button x:Name="UnwatchedBadgeButton"
+                                    Visibility="Collapsed"
+                                    Click="ToggleWatchedSeries_Click"
+                                    Background="#71717A"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#52525B" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#3F3F46" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>

@@ -416,7 +416,10 @@ public partial class LibraryViewModel : ObservableObject
     {
         movie.Watched = !movie.Watched;
         await _db.UpdateMovieAsync(movie);
-        ApplyFilters();
+        if (SelectedView == "Unwatched")
+        {
+            Movies.Remove(movie);
+        }
     }
 
     [RelayCommand]
@@ -432,7 +435,10 @@ public partial class LibraryViewModel : ObservableObject
     {
         series.Watched = !series.Watched;
         await _db.UpdateSeriesAsync(series);
-        ApplySeriesFilters();
+        if (SelectedView == "Unwatched")
+        {
+            Series.Remove(series);
+        }
     }
 
     [RelayCommand]

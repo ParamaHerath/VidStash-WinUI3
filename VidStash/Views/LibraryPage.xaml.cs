@@ -217,6 +217,7 @@ public sealed partial class LibraryPage : Page
         {
             var overlay = FindChild<Grid>(grid, "HoverOverlay");
             var playButton = FindChild<Button>(grid, "PlayButton");
+            var unwatchedBadge = FindChild<Button>(grid, "UnwatchedBadgeButton");
 
             if (overlay != null)
             {
@@ -226,6 +227,18 @@ public sealed partial class LibraryPage : Page
             if (playButton != null)
             {
                 playButton.Visibility = Visibility.Visible;
+            }
+
+            if (unwatchedBadge != null)
+            {
+                bool isWatched = false;
+                if (grid.DataContext is Movie m) isWatched = m.Watched;
+                else if (grid.DataContext is TvSeries s) isWatched = s.Watched;
+
+                if (!isWatched)
+                {
+                    unwatchedBadge.Visibility = Visibility.Visible;
+                }
             }
 
             // Animate the scale transform
@@ -263,6 +276,7 @@ public sealed partial class LibraryPage : Page
         {
             var overlay = FindChild<Grid>(grid, "HoverOverlay");
             var playButton = FindChild<Button>(grid, "PlayButton");
+            var unwatchedBadge = FindChild<Button>(grid, "UnwatchedBadgeButton");
 
             if (overlay != null)
             {
@@ -272,6 +286,11 @@ public sealed partial class LibraryPage : Page
             if (playButton != null)
             {
                 playButton.Visibility = Visibility.Collapsed;
+            }
+
+            if (unwatchedBadge != null)
+            {
+                unwatchedBadge.Visibility = Visibility.Collapsed;
             }
 
             // Animate back to normal scale
@@ -326,6 +345,11 @@ public sealed partial class LibraryPage : Page
 
     private async void ToggleWatchedMovie_Click(object sender, RoutedEventArgs e)
     {
+        if (sender is FrameworkElement element && element.Name == "UnwatchedBadgeButton")
+        {
+            element.Visibility = Visibility.Collapsed;
+        }
+
         if (GetMovieFromContext(sender) is Movie movie)
             await ViewModel.ToggleWatchedMovieCommand.ExecuteAsync(movie);
     }
@@ -354,6 +378,11 @@ public sealed partial class LibraryPage : Page
 
     private async void ToggleWatchedSeries_Click(object sender, RoutedEventArgs e)
     {
+        if (sender is FrameworkElement element && element.Name == "UnwatchedBadgeButton")
+        {
+            element.Visibility = Visibility.Collapsed;
+        }
+
         if (GetSeriesFromContext(sender) is TvSeries series)
             await ViewModel.ToggleWatchedSeriesCommand.ExecuteAsync(series);
     }
@@ -395,6 +424,38 @@ public sealed partial class LibraryPage : Page
             {
                 Effect = SlideNavigationTransitionEffect.FromRight
             });
+        }
+    }
+
+    private void MoviesGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (MoviesGrid.ItemsPanelRoot is ItemsWrapGrid wrapGrid)
+        {
+            double availableWidth = e.NewSize.Width - 48; // Padding is 24 on left and right
+            if (availableWidth <= 0) return;
+
+            int columns = Math.Max(1, (int)Math.Floor(availableWidth / 190.0));
+            double itemWidth = availableWidth / columns;
+            double itemHeight = itemWidth * (275.0 / 190.0);
+
+            wrapGrid.ItemWidth = itemWidth;
+            wrapGrid.ItemHeight = itemHeight;
+        }
+    }
+
+    private void SeriesGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (SeriesGrid.ItemsPanelRoot is ItemsWrapGrid wrapGrid)
+        {
+            double availableWidth = e.NewSize.Width - 48; // Padding is 24 on left and right
+            if (availableWidth <= 0) return;
+
+            int columns = Math.Max(1, (int)Math.Floor(availableWidth / 190.0));
+            double itemWidth = availableWidth / columns;
+            double itemHeight = itemWidth * (275.0 / 190.0);
+
+            wrapGrid.ItemWidth = itemWidth;
+            wrapGrid.ItemHeight = itemHeight;
         }
     }
 
