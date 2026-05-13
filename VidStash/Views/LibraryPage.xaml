@@ -180,17 +180,6 @@
                             <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                    Stretch="UniformToFill" />
 
-                            <!-- Watched badge -->
-                            <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Background="#22C55E"
-                                    CornerRadius="6"
-                                    Width="28" Height="28"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Margin="0,8,8,0">
-                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
-                            </Border>
-
                             <!-- Hover overlay: play button + blurred info strip -->
                             <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="6">
                                 <Grid.OpacityTransition>
@@ -239,6 +228,43 @@
                                     </StackPanel>
                                 </Border>
                             </Grid>
+
+                            <!-- Watched badge button (Green) -->
+                            <Button Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Click="ToggleWatchedMovie_Click"
+                                    Background="#22C55E"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#16A34A" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#15803D" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
+
+                            <!-- Unwatched badge button (Gray) -->
+                            <Button x:Name="UnwatchedBadgeButton"
+                                    Visibility="Collapsed"
+                                    Click="ToggleWatchedMovie_Click"
+                                    Background="#71717A"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#52525B" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#3F3F46" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
@@ -302,17 +328,6 @@
                             <Image Source="{x:Bind Poster, Mode=OneWay, Converter={StaticResource PosterUrlConverter}}"
                                    Stretch="UniformToFill" />
 
-                            <!-- Watched badge -->
-                            <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Background="#22C55E"
-                                    CornerRadius="6"
-                                    Width="28" Height="28"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Margin="0,8,8,0">
-                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
-                            </Border>
-
                             <!-- Hover overlay: play button + blurred info strip -->
                             <Grid x:Name="HoverOverlay" Opacity="0" CornerRadius="6">
                                 <Grid.OpacityTransition>
@@ -361,6 +376,43 @@
                                     </StackPanel>
                                 </Border>
                             </Grid>
+
+                            <!-- Watched badge button (Green) -->
+                            <Button Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Click="ToggleWatchedSeries_Click"
+                                    Background="#22C55E"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#16A34A" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#15803D" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
+
+                            <!-- Unwatched badge button (Gray) -->
+                            <Button x:Name="UnwatchedBadgeButton"
+                                    Visibility="Collapsed"
+                                    Click="ToggleWatchedSeries_Click"
+                                    Background="#71717A"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="0,8,8,0"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#52525B" />
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#3F3F46" />
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
