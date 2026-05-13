@@ -182,13 +182,13 @@
 
                             <!-- Watched badge -->
                             <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Background="{ThemeResource SystemAccentColor}"
-                                    CornerRadius="12"
-                                    Width="24" Height="24"
+                                    Background="#22C55E"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Top"
                                     Margin="0,8,8,0">
-                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White" />
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
                             </Border>
 
                             <!-- Hover overlay: play button + blurred info strip -->
@@ -304,13 +304,13 @@
 
                             <!-- Watched badge -->
                             <Border Visibility="{x:Bind Watched, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Background="{ThemeResource SystemAccentColor}"
-                                    CornerRadius="12"
-                                    Width="24" Height="24"
+                                    Background="#22C55E"
+                                    CornerRadius="6"
+                                    Width="28" Height="28"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Top"
                                     Margin="0,8,8,0">
-                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White" />
+                                <FontIcon Glyph="&#xF78C;" FontSize="16" FontWeight="Bold" Foreground="White" />
                             </Border>
 
                             <!-- Hover overlay: play button + blurred info strip -->

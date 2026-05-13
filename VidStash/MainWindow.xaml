@@ -94,7 +94,11 @@
             IsSettingsVisible="True">
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Movies" Tag="Movies" Icon="Video" />
+                <NavigationViewItem Content="Movies" Tag="Movies">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B2;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="TV Series" Tag="Series" Icon="SlideShow" />
                 <NavigationViewItem Content="Unwatched" Tag="Unwatched">
                     <NavigationViewItem.Icon>
