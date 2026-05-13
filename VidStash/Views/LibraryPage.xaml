@@ -140,6 +140,7 @@
                         IsItemClickEnabled="True"
                         ItemClick="MoviesGrid_ItemClick"
                         SelectionMode="None"
+                        SizeChanged="MoviesGrid_SizeChanged"
                         ItemContainerStyle="{StaticResource NoHoverGridViewItemStyle}">
 
                 <GridView.ItemsPanel>
@@ -153,15 +154,16 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:Movie">
-                        <Grid Width="170" Height="255" CornerRadius="6"
+                        <Grid CornerRadius="6"
                               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                              Margin="0,8,0,8"
+                              Margin="10"
+                              RenderTransformOrigin="0.5,0.5"
                               PointerEntered="PosterCard_PointerEntered"
                               PointerExited="PosterCard_PointerExited"
                               RightTapped="MovieCard_RightTapped">
 
                             <Grid.RenderTransform>
-                                <CompositeTransform x:Name="MovieCardTransform" CenterX="85" CenterY="127" />
+                                <CompositeTransform />
                             </Grid.RenderTransform>
 
                             <Grid.ContextFlyout>
@@ -289,6 +291,7 @@
                 IsItemClickEnabled="True"
                 ItemClick="SeriesGrid_ItemClick"
                 SelectionMode="None"
+                SizeChanged="SeriesGrid_SizeChanged"
                 ItemContainerStyle="{StaticResource NoHoverGridViewItemStyle}">
 
                 <GridView.ItemsPanel>
@@ -302,14 +305,15 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:TvSeries">
-                        <Grid Width="170" Height="255" CornerRadius="6"
+                        <Grid CornerRadius="6"
                               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                              Margin="0,8,0,8"
+                              Margin="10"
+                              RenderTransformOrigin="0.5,0.5"
                               PointerEntered="PosterCard_PointerEntered"
                               PointerExited="PosterCard_PointerExited"
                               RightTapped="SeriesCard_RightTapped">
                             <Grid.RenderTransform>
-                                <CompositeTransform x:Name="SeriesCardTransform" CenterX="85" CenterY="127" />
+                                <CompositeTransform />
                             </Grid.RenderTransform>
 
                             <Grid.ContextFlyout>

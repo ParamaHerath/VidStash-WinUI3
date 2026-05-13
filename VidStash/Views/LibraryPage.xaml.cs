@@ -417,6 +417,38 @@ public sealed partial class LibraryPage : Page
         }
     }
 
+    private void MoviesGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (MoviesGrid.ItemsPanelRoot is ItemsWrapGrid wrapGrid)
+        {
+            double availableWidth = e.NewSize.Width - 48; // Padding is 24 on left and right
+            if (availableWidth <= 0) return;
+
+            int columns = Math.Max(1, (int)Math.Floor(availableWidth / 190.0));
+            double itemWidth = availableWidth / columns;
+            double itemHeight = itemWidth * (275.0 / 190.0);
+
+            wrapGrid.ItemWidth = itemWidth;
+            wrapGrid.ItemHeight = itemHeight;
+        }
+    }
+
+    private void SeriesGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (SeriesGrid.ItemsPanelRoot is ItemsWrapGrid wrapGrid)
+        {
+            double availableWidth = e.NewSize.Width - 48; // Padding is 24 on left and right
+            if (availableWidth <= 0) return;
+
+            int columns = Math.Max(1, (int)Math.Floor(availableWidth / 190.0));
+            double itemWidth = availableWidth / columns;
+            double itemHeight = itemWidth * (275.0 / 190.0);
+
+            wrapGrid.ItemWidth = itemWidth;
+            wrapGrid.ItemHeight = itemHeight;
+        }
+    }
+
     private static Movie? GetMovieFromContext(object sender) =>
         (sender as FrameworkElement)?.DataContext as Movie;
 
